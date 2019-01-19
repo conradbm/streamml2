@@ -1,0 +1,1 @@
+select F_Estimator_Name, F_Parameter_Name from T_Estimator e inner join T_Parameter p on e.F_Estimator_ID = p.F_Estimator_ID where e.F_Estimator_CanFeatureSelect = 1 and p.F_Parameter_Open = 1;
