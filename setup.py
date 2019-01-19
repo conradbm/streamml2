@@ -1,7 +1,9 @@
 import os
 #python setup.py sdist
 # vvv in ipython notebook vvv
-#!twine upload streamml-0.1.tar.gz -u bmconrad -p Jesusislife1! --verbose
+#!pip install twine
+#cd into dist
+#!twine upload streamml2-0.1.tar.gz -u bmconrad -p 8*** --verbose
 from distutils.core import setup
 setup(
   name = 'streamml2',         # How you named your package folder (MyLib)
