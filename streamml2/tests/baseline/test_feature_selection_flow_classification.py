@@ -15,8 +15,8 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-sys.path.append(os.getcwd()) #I.e., make it a path variable
-sys.path.append(os.path.join(os.getcwd(),"streamml"))
+#sys.path.append(os.getcwd()) #I.e., make it a path variable
+#sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
 """
 One stop shop for streamml:
@@ -53,7 +53,7 @@ Feature Selection Models:
                                  }
 """
 
-from streamml2.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+from streamml2_test.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
 from sklearn.datasets import load_iris
 iris=load_iris()
 X=pd.DataFrame(iris['data'], columns=iris['feature_names'])

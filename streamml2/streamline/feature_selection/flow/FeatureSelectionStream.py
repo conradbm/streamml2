@@ -130,7 +130,6 @@ class FeatureSelectionStream:
             stringbuilder += " --> "
             
         if self._verbose:
-            
             if self._regressors:
                 print("*************************")
                 print("=> (Regressor) "+"=> Feature Selection Streamline: " + stringbuilder[:-5])
@@ -437,7 +436,7 @@ class FeatureSelectionStream:
         if self._verbose:
             print
         
-        return_dict['feature_importances']=self._key_features
+        return_dict['feature_importances']=pd.DataFrame(self._key_features, index=self._X.columns.tolist())
         
         self._ensemble_results = None
         self._kept_features = None
@@ -485,8 +484,9 @@ class FeatureSelectionStream:
                 if count >= num_features_requested:
                     break
               
-            print("",self._featurePercentage*100, " % -> ("+str(num_features_requested)+") features kept.")
-            print(self._kept_features)
+            if self._verbose:
+                print("",self._featurePercentage*100, " % -> ("+str(num_features_requested)+") features kept.")
+                print(self._kept_features)
           # Print data with only those features
             return_dict['ensemble_results']=self._ensemble_results
             return_dict['kept_features']=self._kept_features

@@ -121,13 +121,15 @@ class ModelSelectionStream:
             results=model.validate(self._X_test, self._y_test, metrics)
             self._final_results[model.getCode()]=results
             
-        print("*************************************************************")
-        print("=> (Final Results) => True Error Between Xtrain Xtest")
-        print("*************************************************************")
+        if self._verbose:
+            print("*************************************************************")
+            print("=> (Final Results) => True Error Between Xtrain Xtest")
+            print("*************************************************************")
         df_results = pd.DataFrame(self._final_results)
-        print(df_results)
+        if self._verbose:
+            print(df_results)
         
-        df_results.plot(title='Errors by Model')
+        df_results.plot(title='Error(s) - Train set against test set - Full dataset')
         plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
         locs, labels = plt.xticks()
         plt.setp(labels, rotation=45)
@@ -154,9 +156,10 @@ class ModelSelectionStream:
 	"""
     def determineBestEstimators(self, models):
         self._bestEstimators={}
-        print("**************************************************")
-        print("Determining Best Estimators.")
-        print("**************************************************")
+        if self._verbose:
+            print("**************************************************")
+            print("Determining Best Estimators.")
+            print("**************************************************")
         for model in models:
             self._bestEstimators[model.getCode()]=model.getBestEstimator()
 
@@ -185,7 +188,9 @@ class ModelSelectionStream:
         
         # Get a StratifiedKFold Cross Validation parameters
         if stratified:
-            
+            if self._verbose:
+                print("Executing Standard " + str(self._nfolds) + "-Fold Cross Validation Repeated " + str(self._nrepeats) + " Times.")
+              
             assert self._cut != None , "you must select a cut point for your stratified folds to equally distribute your critical points"
             rskf = RepeatedStratifiedKFold(n_splits=self._nfolds, n_repeats=self._nrepeats,random_state=36851234)
             
@@ -210,6 +215,9 @@ class ModelSelectionStream:
                 self._regressors_results[k]=mean
 
         else:
+            if self._verbose:
+                print("Executing Standard " + str(self._nfolds) + "-Fold Cross Validation Repeated " + str(self._nrepeats) + " Times.")
+              
             kf = KFold(n_splits=self._nfolds)
             for train_index, test_index in kf.split(Xtrain):
                 fold_X_train, fold_X_test = Xtrain.iloc[train_index,:], Xtrain.iloc[test_index,:]
@@ -227,15 +235,18 @@ class ModelSelectionStream:
                 self._regressors_results[k]=mean
         return_dict["avg_kfold"]=self._regressors_results
         
-        # create a pandas dataframe of each metric on each model
-        print("*****************************************")
-        print("=> (Regressor) => Performance Sheet")
-        print("*****************************************")
+        if self._verbose:
+            # create a pandas dataframe of each metric on each model
+            print("*****************************************")
+            print("=> (Regressor) => Performance Sheet")
+            print("*****************************************")
         
         df_results = pd.DataFrame(self._regressors_results)
-        print(df_results)
         
-        df_results.plot(title='Errors by Model')
+        if self._verbose:
+            print(df_results)
+        
+        df_results.plot(title='Error(s) - Regressor(s)')
         plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
         locs, labels = plt.xticks()
         plt.setp(labels, rotation=45)
@@ -244,9 +255,10 @@ class ModelSelectionStream:
 
         
         if self._stats:
-            print("*****************************************************************************************")
-            print("=> (Regressor) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
-            print("*****************************************************************************************")
+            if self._verbose:
+                print("*****************************************************************************************")
+                print("=> (Regressor) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
+                print("*****************************************************************************************")
             self._metrics_significance_dict={}
             for m in metrics:
                 ttest_sig_mat = np.zeros((len(wrapper_models), len(wrapper_models)))
@@ -289,7 +301,9 @@ class ModelSelectionStream:
         
         # Get a StratifiedKFold Cross Validation parameters
         if stratified:
-            
+            if self._verbose:
+                print("Executing Stratified " + str(self._nfolds) + "Fold Cross Validation Repeated " + str(self._nrepeats) + " Times.")
+                
             rskf = RepeatedStratifiedKFold(n_splits=self._nfolds, n_repeats=self._nrepeats,random_state=36851234)
             for train_index, test_index in rskf.split(Xtrain, ytrain):
                 
@@ -307,6 +321,9 @@ class ModelSelectionStream:
                 mean = example_df.mean()
                 self._classifier_results[k]=mean
         else:
+            if self._verbose:
+                print("Executing Standard " + str(self._nfolds) + "-Fold Cross Validation Repeated " + str(self._nrepeats) + " Times.")
+              
             kf = KFold(n_splits=self._nfolds)
             for train_index, test_index in kf.split(Xtrain):
                 fold_X_train, fold_X_test = Xtrain.iloc[train_index,:], Xtrain.iloc[test_index,:]
@@ -327,14 +344,17 @@ class ModelSelectionStream:
         
         # create a pandas dataframe of each metric on each model
 
-        print("*****************************************")
-        print("=> (Classifier) => Performance Sheet")
-        print("*****************************************")
+        if self._verbose:
+            print("*****************************************")
+            print("=> (Classifier) => Performance Sheet")
+            print("*****************************************")
         
         df_results = pd.DataFrame(self._classifier_results)
-        print(df_results)
         
-        df_results.plot(title='Errors by Model')
+        if self._verbose:
+            print(df_results)
+        
+        df_results.plot(title='Error(s) - Classifier(s)')
         plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
         locs, labels = plt.xticks()
         plt.setp(labels, rotation=45)
@@ -343,9 +363,10 @@ class ModelSelectionStream:
         
         if self._stats:
             
-            print("*****************************************************************************************")
-            print("=> (Classifier) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
-            print("*****************************************************************************************")
+            if self._verbose:
+                print("*****************************************************************************************")
+                print("=> (Classifier) => (Two Tailed T-test) =>(Calculating Statistical Differences In Means)")
+                print("*****************************************************************************************")
             self._metrics_significance_dict={}
             for m in metrics:
                 ttest_sig_mat = np.zeros((len(wrapper_models), len(wrapper_models)))
@@ -406,6 +427,7 @@ class ModelSelectionStream:
         assert isinstance(modelSelection, bool), "modelSelection must be bool"
         assert isinstance(stratified, bool), "modelSelection must be bool"
         assert isinstance(stats, bool), "stats must be bool"
+        
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
@@ -426,7 +448,6 @@ class ModelSelectionStream:
             stringbuilder += " --> "
             
         if self._verbose:
-            
             if self._regressors:
                 print("*************************")
                 print("=> (Regressor) "+"=> Model Selection Streamline: " + stringbuilder[:-5])
@@ -969,8 +990,6 @@ class ModelSelectionStream:
                                                                                      self._y,
                                                                                      test_size=self._test_size)
 
-        
-    
         # Wrapper models    
         self._wrapper_models=[]
         

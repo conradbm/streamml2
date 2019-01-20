@@ -69,10 +69,10 @@ import pandas as pd
 import numpy as np
 import os
 import sys
-sys.path.append(os.getcwd()) #I.e., make it a path variable
-sys.path.append(os.path.join(os.getcwd(),"streamml"))
+#sys.path.append(os.getcwd()) #I.e., make it a path variable
+#sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
-from streamml2.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+from streamml2_test.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 from sklearn.svm import SVC
 from sklearn.naive_bayes import GaussianNB
 from sklearn.ensemble import RandomForestClassifier
@@ -112,17 +112,17 @@ classification_options = {'abc':0,
                             'svc':0}
 # returns
 results_dict = ModelSelectionStream(X,y).flow(list(classification_options.keys()),
-                                                                                                    params={},
-                                                                                                    metrics=[],
-                                                                                                    test_size=0.35,
-                                                                                                    nfolds=10,
-                                                                                                    nrepeats=10,
-                                                                                                    verbose=False, 
-                                                                                                    regressors=False,
-                                                                                                    stratified=True,
-                                                                                                    stats=True,
-                                                                                                    modelSelection=True,
-                                                                                                    n_jobs=3)
+                                                    params={},
+                                                    metrics=[],
+                                                    test_size=0.35,
+                                                    nfolds=3,
+                                                    nrepeats=3,
+                                                    verbose=True, 
+                                                    regressors=False,
+                                                    stratified=True,
+                                                    stats=True,
+                                                    modelSelection=True,
+                                                    n_jobs=3)
 
 print("Best Models ... ")
 print(results_dict["models"])

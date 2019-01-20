@@ -10,14 +10,6 @@
 #
 #
 #
-
-import pandas as pd
-import numpy as np
-import os
-import sys
-sys.path.append(os.getcwd()) #I.e., make it a path variable
-sys.path.append(os.path.join(os.getcwd(),"streamml"))
-
 """
 One stop shop for streamml:
 
@@ -53,7 +45,15 @@ Feature Selection Models:
                                  }
 """
 
-from streamml2.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+import pandas as pd
+import numpy as np
+import os
+import sys
+sys.path.append(os.getcwd()) #I.e., make it a path variable
+sys.path.append(os.path.join(os.getcwd(),"streamml"))
+
+
+from streamml2_test.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
 from sklearn.datasets import load_boston
 boston=load_boston()
 X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
@@ -70,7 +70,7 @@ return_dict = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr"
                                                 n_jobs=3)
 
 print("Feature data ...")
-print(pd.DataFrame(return_dict['feature_importances']))
+print(return_dict['feature_importances'])
 print("Features rankings decision maker...")
 print(return_dict['ensemble_results'])
 print("Reduced data ...")

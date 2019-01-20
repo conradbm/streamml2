@@ -48,7 +48,7 @@ class TransformationStream:
     1. Default
         Paramters: df : pd.DataFrame, dataframe must be accepted to use this class
     """
-    def __init__(self, df=None, corpus=False, method='tfidf',min_df=0.01, max_df=0.99, n_features=10000):
+    def __init__(self, df=None, corpus=False, method='tfidf',min_df=0.01, max_df=0.99, n_features=10000, verbose=True):
         
         self._corpus_options=['tfidf','count','hash']
         if corpus == False:
@@ -58,6 +58,9 @@ class TransformationStream:
             assert isinstance(df, list), "data must be a list of strings when corpus is true"
             assert method in self._corpus_options, "method must be in corpus_options: " + " ".join(self._corpus_options)
             
+            if verbose:
+                print("Constructing " + method)
+                
             if method == 'tfidf':
                 self._vectorizer=TfidfVectorizer(min_df=min_df, max_df=max_df).fit(df)
                 self._vocabulary=self._vectorizer.vocabulary_
@@ -110,48 +113,48 @@ class TransformationStream:
             if "pca__percent_variance" in params.keys():
                 assert isinstance(params["pca__percent_variance"], float), "percent variance must be float."
                 self._percent_variance=params["pca__percent_variance"]
-                print ("custom: pca__percent_variance="+str(self._percent_variance) )
+                #print ("custom: pca__percent_variance="+str(self._percent_variance) )
             else:
                 self._percent_variance=0.90
-                print ("default: pca__percent_variance="+str(self._percent_variance) )
+                #print ("default: pca__percent_variance="+str(self._percent_variance) )
 
             if "pca__n_components" in params.keys():
                 assert isinstance(params["pca__n_components"], int), "number of components must be int."
                 self._pca_n_components=params["pca__n_components"]
-                print ("custom: pca__n_components="+str(self._pca_n_components) )
+                #print ("custom: pca__n_components="+str(self._pca_n_components) )
             else:
                 self._pca_n_components=len(self._X.columns.tolist())
-                print ("default: pca__n_components="+str(self._pca_n_components) )
+                #print ("default: pca__n_components="+str(self._pca_n_components) )
 
         # Enforce TSNE parameters
         if "tsne" in preproc_args:
             if "tsne__n_components" in params.keys():
                 assert isinstance(params["tsne__n_components"], int), "n_components must be integer."
                 self._tsne_n_components=params["tsne__n_components"]
-                print ("custom: tsne__n_components"+str(self._tsne_n_components) )
+                #print ("custom: tsne__n_components"+str(self._tsne_n_components) )
             else:
                 self._tsne_n_components=3
-                print ("default: _tsne_n_components= "+str(self._tsne_n_components) )
+                #print ("default: _tsne_n_components= "+str(self._tsne_n_components) )
             
         # Enforce Kmeans parameters
         if "kmeans" in preproc_args:
             if "kmeans__n_clusters" in params.keys():
                 assert isinstance(params["kmeans__n_clusters"], int), "clusters must be integer."
                 self._n_clusters=params["kmeans__n_clusters"]
-                print ("custom: kmeans__n_clusters="+str(self._n_clusters))
+                #print ("custom: kmeans__n_clusters="+str(self._n_clusters))
             else:
                 self._n_clusters=2
-                print ("default: kmeans__n_clusters="+str(self._n_clusters))
+                #print ("default: kmeans__n_clusters="+str(self._n_clusters))
         
         # Enforce Binarize parameters
         if "binarize" in preproc_args:
             if "binarize__threshold" in params.keys():
                 assert isinstance(params["binarize__threshold"], float), "threshold must be float."
                 self._threshold=params["binarize__threshold"]
-                print ("default: binarize__threshold="+str(self._threshold))
+                #print ("custom: binarize__threshold="+str(self._threshold))
             else:
                 self._threshold=0.0
-                print ("default: binarize__threshold="+str(self._threshold))
+                #print ("default: binarize__threshold="+str(self._threshold))
 
         if "brbm" in preproc_args:
             if "brbm__n_components" in params.keys():
@@ -169,9 +172,10 @@ class TransformationStream:
             stringbuilder += thing
             stringbuilder += "--> "
 
-        print("**************************************************")
-        print("Transformation Streamline: " + stringbuilder[:-4])
-        print("**************************************************")
+        if self._verbose:
+            print("**************************************************")
+            print("Transformation Streamline: " + stringbuilder[:-4])
+            print("**************************************************")
         
         
         # Define helper functions to execute our transformation streamline
@@ -226,33 +230,7 @@ class TransformationStream:
                
 			# More parameters can be found here: 
             # http://scikit-learn.org/stable/modules/preprocessing.html
-            """
-            pca = PCA()
-            
-            pca_output = pca.fit(X)
-            components_nums = [i for i in range(len(pca_output.components_))]
-            self._percentVarianceExplained = pca_output.explained_variance_/sum(pca_output.explained_variance_)
-            
-            tot=0.0
-            idx=0
-            for i in range(len(self._percentVarianceExplained)):
-                tot+= self._percentVarianceExplained[i]
-                if tot >= self._percent_variance:
-                    idx=i+1
-                    break
-            if verbose:
-                print ("Percent of Variance Explained By Components:\n")
-                print (str(self._percentVarianceExplained), "\n")
-                print (str(self._percent_variance*100), "% variance is explained in the first ", str(idx), " components\n")
-                pca_df=pd.DataFrame({'explained_variance':pca_output.explained_variance_}, index=components_nums)
-                pca_df.plot(title='Components vs. Variance')
-                plt.show()
-            
-            pca_output = pca.fit_transform(X)
-            pca_df = pd.DataFrame(pca_output, columns=["PC_"+str(i) for i in components_nums])
-            
-            return pca_df.iloc[:, :idx]
-            """
+
             return PCATransformer(self._percent_variance, self._pca_n_components, self._verbose).transform(X)
         
         # Implemented

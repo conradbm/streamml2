@@ -30,8 +30,9 @@ class PCATransformer(AbstractTransformer):
                     idx=i+1
                     break
 
-            print ("Percent of Variance Explained By Components:\n")
-            print (str(self._percentVarianceExplained), "\n")
+            if self._verbose:
+                print ("Percent of Variance Explained By Components:\n")
+                print (str(self._percentVarianceExplained), "\n")
             print (str(self._percent_variance*100), "% variance is explained in the first ", str(idx), " components\n")
             pca_df=pd.DataFrame({'explained_variance':pca_output.explained_variance_}, index=components_nums)
             pca_df.plot(title='Components vs. Variance')

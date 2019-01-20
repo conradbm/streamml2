@@ -65,14 +65,16 @@ Model Selection Models:
                                     'sgd':stochasticGradientDescentClassifier,
                                     'svc':supportVectorClassifier}
 """
+
+
 import pandas as pd
 import numpy as np
 import os
 import sys
-sys.path.append(os.getcwd()) #I.e., make it a path variable
-sys.path.append(os.path.join(os.getcwd(),"streamml"))
+#sys.path.append(os.getcwd()) #I.e., make it a path variable
+#sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
-from streamml2.streamml.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+from streamml2_test.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 from sklearn.svm import SVR
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.linear_model import LinearRegression
@@ -81,7 +83,6 @@ from sklearn.datasets import load_boston
 boston=load_boston()
 X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
 y=pd.DataFrame(boston['target'],columns=["target"])
-
 
 
 
@@ -98,6 +99,7 @@ params={ 'abr__algorithm':['SAMME'],
                                   'mlpc__learning_rate':['constant','invscaling']}
 ["abc","rfc","logr","dtc", "gbc", "mlpc", "sgd","knnc"]
 """
+
 # Regression Test
 regression_options={"lr" : 0,
                    "svr" : 0,
@@ -125,7 +127,7 @@ results_dict = ModelSelectionStream(X,y).flow(list(regression_options.keys()),
                                                                     test_size=0.5,
                                                                     nfolds=10,
                                                                     nrepeats=10,
-                                                                    verbose=False, 
+                                                                    verbose=True, 
                                                                     regressors=True,
                                                                     stratified=True, 
                                                                     cut=y['target'].mean(),
