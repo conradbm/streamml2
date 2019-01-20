@@ -110,7 +110,7 @@ Streaming Capabilities provided:
 
 </code>
 
-<h2>Regression</h2>
+<h2>Model Selection</h2>
 <code>
 	
 	from streamml2.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
@@ -180,6 +180,7 @@ Streaming Capabilities provided:
 <h2>Feature Selection</h2>
 <code>
 	
+	from streamml2.streamml2.streamline.model_selection.flow.FeatureSelectionStream import FeatureSelectionStream
 	from sklearn.datasets import load_iris
 	iris=load_iris()
 	X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
@@ -215,4 +216,86 @@ Streaming Capabilities provided:
 							featurePercentage=0.5,
 							n_jobs=3)
 						
+</code>
+
+<h2> Hybrid Example </h2>
+<p> e.g., kmeans cluster column was appended via transformer, then dropped due to lack of significance in feature selection.</p>
+
+
+<code>
+
+	import pandas as pd
+	from streamml2.streamml2.streamline.transformation.flow.TransformationStream import TransformationStream
+	from streamml2.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+	from streamml2.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+	from sklearn.svm import SVR
+	from sklearn.ensemble import RandomForestRegressor
+	from sklearn.linear_model import LinearRegression
+	from sklearn.datasets import load_boston
+
+	# Load data
+	boston=load_boston()
+	X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
+	y=pd.DataFrame(boston['target'],columns=["target"])
+
+
+	# Transform data
+	X2 = TransformationStream(X).flow(["pca","normalize","kmeans"],
+
+			  params={"pca__percent_variance":0.95,
+
+			      "kmeans__n_clusters":len(set('target'))})
+
+	print("Transformed Boston Dataset ... ")
+	print(X2)
+
+	return_dict = FeatureSelectionStream(X2,y).flow(["mixed_selection", "abr", "rfr","svr","plsr"],
+							params={},
+							regressors=True,
+							ensemble=True,
+							featurePercentage=0.50,
+							n_jobs=3)
+
+	print("Top 50% Critical Features ...")
+	print(return_dict['kept_features'])
+	Xsignal=X2[return_dict['kept_features']]
+	print(Xsignal)
+
+
+	regression_options={"lr" : 0,
+		   "svr" : 0,
+		   "rfr":0,
+		   "abr":0,
+		   "knnr":0,
+		   "ridge":0,
+		   "lasso":0,
+		   "enet":0,
+		   "mlpr":0,
+		   "br":0,
+		   "dtr":0,
+		   "gbr":0,
+		   "gpr":0,
+		   "hr":0,
+		   "tsr":0,
+		   "par":0,
+		   "ard":0,
+		   "bays_ridge":0,
+		   "lasso_lar":0,
+		   "lar":0}
+	results_dict = ModelSelectionStream(Xsignal,y).flow(list(regression_options.keys()),
+							    params={},
+							    metrics=[],
+							    test_size=0.25,
+							    nfolds=10,
+							    nrepeats=10,
+							    regressors=True,
+							    stratified=False, 
+							    #cut=y['target'].mean(),
+							    modelSelection=True,
+							    n_jobs=3)
+	print("Model Competition Results...")
+	for k in results_dict.keys():
+	    print(k)
+	    print(results_dict[k])
+
 </code>
