@@ -17,30 +17,30 @@ Streaming Capabilities provided:
 
 <li><code>ModelSelectionStream</code>. 
 <p>Regression Models:
-{"lr" : linearRegression,
-"svr" : supportVectorRegression,
-"rfr":randomForestRegression,
-"abr":adaptiveBoostingRegression,
-"knnr":knnRegression,
-"ridge":ridgeRegression,
-"lasso":lassoRegression,
-"enet":elasticNetRegression,
-"mlpr":multilayerPerceptronRegression,
-"br":baggingRegression,
-"dtr":decisionTreeRegression,
-"gbr":gradientBoostingRegression,
-"gpr":gaussianProcessRegression,
-"hr":huberRegression,
-"tsr":theilSenRegression,
-"par":passiveAggressiveRegression,
-"ard":ardRegression,
-"bays_ridge":bayesianRidgeRegression,
-"lasso_lar":lassoLeastAngleRegression,
-"lar":leastAngleRegression}
+	{"lr" : linearRegression,
+	"svr" : supportVectorRegression,
+	"rfr":randomForestRegression,
+	"abr":adaptiveBoostingRegression,
+	"knnr":knnRegression,
+	"ridge":ridgeRegression,
+	"lasso":lassoRegression,
+	"enet":elasticNetRegression,
+	"mlpr":multilayerPerceptronRegression,
+	"br":baggingRegression,
+	"dtr":decisionTreeRegression,
+	"gbr":gradientBoostingRegression,
+	"gpr":gaussianProcessRegression,
+	"hr":huberRegression,
+	"tsr":theilSenRegression,
+	"par":passiveAggressiveRegression,
+	"ard":ardRegression,
+	"bays_ridge":bayesianRidgeRegression,
+	"lasso_lar":lassoLeastAngleRegression,
+	"lar":leastAngleRegression}
 </p>
 
 <p>Regression metrics:
-['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
+	['rmse','mse', 'r2','explained_variance','mean_absolute_error','median_absolute_error']
 </p>
 <p>Classification Models:
 
@@ -55,137 +55,164 @@ Streaming Capabilities provided:
 	'rfc':randomForestClassifier,
 	'sgd':stochasticGradientDescentClassifier,
 	'svc':supportVectorClassifier}
-			
+	
 </p>
 <p>Classification Metrics:
 ["auc","prec","recall","f1","accuracy", "kappa","log_loss"]
 </p>
 </li>
 
-<li><code>FeatureSelectionStream</code>, meant to flow through several predictive models and algorithms to determine which subset of features is most predictive or representative of your dataset, these include: RandomForestFeatureImportance, LassoFeatureImportance, MixedSelection, and a technique to ensemble each named TOPSISFeatureRanking. You must specify whether your wish to ensemble and with what technique (denoted <code>ensemble=True). This is not currently supported, however will be built on top the <em>sklearn.feature_selection</em>.</code> 
+<li>
+<code>FeatureSelectionStream</code>, meant to flow through several predictive models and algorithms to determine which subset of features is most predictive or representative of your dataset, these include: RandomForestFeatureImportance, LassoFeatureImportance, MixedSelection, and a technique to ensemble each named TOPSISFeatureRanking. You must specify whether your wish to ensemble and with what technique (denoted <code>ensemble=True). This is not currently supported, however will be built on top the <em>sklearn.feature_selection</em>.</code> 
 </li>
 </ul>
 
 <hr>
 
-<strong>Supported stream operators</strong>: scale, normalize, boxcox, binarize, pca, kmeans, brbm (Bernoulli Restricted Boltzman Machine).
+<strong>Supported stream operators</strong>: scale, normalize, boxcox, binarize, pca, kmeans, brbm (Bernoulli Restricted Boltzman Machine).</strong>
 
 <h2> Transformation </h2>
 <code> 
-import pandas as pd
-from streamml2.streamml2.streamline.transformation.flow.TransformationStream import TransformationStream
 
-from sklearn.datasets import fetch_20newsgroups
-categories = ['alt.atheism', 'talk.religion.misc','comp.graphics', 'sci.space']
-newsgroups_train = fetch_20newsgroups(subset='train',categories=categories)
+	import pandas as pd
 
-X2 = TransformationStream(newsgroups_train.data,corpus=True, method='tfidf').flow(["pca","normalize","kmeans"],
-                                  params={"pca__percent_variance":0.95,
-                                          "kmeans__n_clusters":len(categories)})
-print(X2)
+	from streamml2.streamml2.streamline.transformation.flow.TransformationStream import TransformationStream
 
-from sklearn.datasets import load_iris
-iris=load_iris()
-X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
-y=pd.DataFrame(iris['target'], columns=['target'])
+	from sklearn.datasets import fetch_20newsgroups
 
-X2 = TransformationStream(X).flow(["pca","scale","normalize","kmeans"],
-                                  params={"pca__n_components":2,
-                                          "kmeans__n_clusters":len(set(y['target']))})
-print(X2)
+	categories = ['alt.atheism', 'talk.religion.misc','comp.graphics', 'sci.space']
+
+	newsgroups_train = fetch_20newsgroups(subset='train',categories=categories)
+
+	X2 = TransformationStream(newsgroups_train.data,corpus=True, method='tfidf').flow(["pca","normalize","kmeans"],
+
+					  params={"pca__percent_variance":0.95,
+
+						  "kmeans__n_clusters":len(categories)})
+
+	print(X2)
+
+	from sklearn.datasets import load_iris
+
+	iris=load_iris()
+
+	X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+
+	y=pd.DataFrame(iris['target'], columns=['target'])
+
+	X2 = TransformationStream(X).flow(["pca","scale","normalize","kmeans"],
+
+					  params={"pca__n_components":2,
+
+						  "kmeans__n_clusters":len(set(y['target']))})
+
+	print(X2)
+
 </code>
 
 <h2>Regression</h2>
 <code>
-from streamml2.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
-from sklearn.svm import SVR
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.linear_model import LinearRegression
-import pandas as pd
-from sklearn.datasets import load_boston
-boston=load_boston()
-X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
-y=pd.DataFrame(boston['target'],columns=["target"])
+	
+	from streamml2.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
 
-regression_options={"lr" : 0,
-                   "svr" : 0,
-                   "rfr":0,
-                   "abr":0,
-                   "knnr":0,
-                   "ridge":0,
-                   "lasso":0,
-                   "enet":0,
-                   "mlpr":0,
-                   "br":0,
-                   "dtr":0,
-                   "gbr":0,
-                   "gpr":0,
-                   "hr":0,
-                   "tsr":0,
-                   "par":0,
-                   "ard":0,
-                   "bays_ridge":0,
-                   "lasso_lar":0,
-                   "lar":0}
-results_dict = ModelSelectionStream(X,y).flow(list(regression_options.keys()),
-                                                                    params={},
-                                                                    metrics=[],
-                                                                    test_size=0.5,
-                                                                    nfolds=10,
-                                                                    nrepeats=10,
-                                                                    verbose=False, 
-                                                                    regressors=True,
-                                                                    stratified=True, 
-                                                                    cut=y['target'].mean(),
-                                                                    modelSelection=True,
-                                                                    n_jobs=3)
+	from sklearn.svm import SVR
 
-print("Best Models ... ")
-print(results_dict["models"])
-print("Final Errors ... ")
-print(pd.DataFrame(results_dict["final_errors"]))
-print("Metric Table ...")
-print(pd.DataFrame(results_dict["avg_kfold"]))
-print("Significance By Metric ...")
-for k in results_dict["significance"].keys():
-    print(k)
-    print(results_dict["significance"][k])
+	from sklearn.ensemble import RandomForestRegressor
+
+	from sklearn.linear_model import LinearRegression
+
+	import pandas as pd
+
+	from sklearn.datasets import load_boston
+
+	boston=load_boston()
+
+	X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
+
+	y=pd.DataFrame(boston['target'],columns=["target"])
+
+	regression_options={"lr" : 0,
+			   "svr" : 0,
+			   "rfr":0,
+			   "abr":0,
+			   "knnr":0,
+			   "ridge":0,
+			   "lasso":0,
+			   "enet":0,
+			   "mlpr":0,
+			   "br":0,
+			   "dtr":0,
+			   "gbr":0,
+			   "gpr":0,
+			   "hr":0,
+			   "tsr":0,
+			   "par":0,
+			   "ard":0,
+			   "bays_ridge":0,
+			   "lasso_lar":0,
+			   "lar":0}
+	results_dict = ModelSelectionStream(X,y).flow(list(regression_options.keys()),
+									    params={},
+									    metrics=[],
+									    test_size=0.5,
+									    nfolds=10,
+									    nrepeats=10,
+									    verbose=False, 
+									    regressors=True,
+									    stratified=True, 
+									    cut=y['target'].mean(),
+									    modelSelection=True,
+									    n_jobs=3)
+
+	print("Best Models ... ")
+	print(results_dict["models"])
+	print("Final Errors ... ")
+	print(pd.DataFrame(results_dict["final_errors"]))
+	print("Metric Table ...")
+	print(pd.DataFrame(results_dict["avg_kfold"]))
+	print("Significance By Metric ...")
+	for k in results_dict["significance"].keys():
+	    print(k)
+	    print(results_dict["significance"][k])
+    
 </code>
 
 <h2>Feature Selection</h2>
 <code>
-from sklearn.datasets import load_iris
-iris=load_iris()
-X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
-y=pd.DataFrame(iris['target'], columns=['target'])
+	
+	from sklearn.datasets import load_iris
+	iris=load_iris()
+	X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+	y=pd.DataFrame(iris['target'], columns=['target'])
 
-return_dict = FeatureSelectionStream(X,y).flow(["rfc", "abc", "svc"],
-                                                params={},
-                                                verbose=True,
-                                                regressors=False,
-                                                ensemble=True,
-                                                featurePercentage=0.5,
-                                                n_jobs=3)
+	return_dict = FeatureSelectionStream(X,y).flow(["rfc", "abc", "svc"],
+							params={},
+							verbose=True,
+							regressors=False,
+							ensemble=True,
+							featurePercentage=0.5,
+							n_jobs=3)
 
-print("Feature data ...")
-print(pd.DataFrame(return_dict['feature_importances']))
-print("Features rankings decision maker...")
-print(return_dict['ensemble_results'])
-print("Reduced data ...")
-print(X[return_dict['kept_features']].head())
+	print("Feature data ...")
+	print(pd.DataFrame(return_dict['feature_importances']))
+	print("Features rankings decision maker...")
+	print(return_dict['ensemble_results'])
+	print("Reduced data ...")
+	print(X[return_dict['kept_features']].head())
 
-from sklearn.datasets import load_boston
-boston=load_boston()
-X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
-y=pd.DataFrame(boston['target'],columns=["target"])
+	from sklearn.datasets import load_boston
+	boston=load_boston()
+	X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
+	y=pd.DataFrame(boston['target'],columns=["target"])
 
-return_dict = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
-                                                params={"mixed_selection__threshold_in":0.01,
-                                                        "mixed_selection__threshold_out":0.05,
-                                                        "mixed_selection__verbose":True},
-                                                verbose=True,
-                                                regressors=True,
-                                                ensemble=True,
-                                                featurePercentage=0.5,
-                                                n_jobs=3)
+	return_dict = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
+							params={"mixed_selection__threshold_in":0.01,
+								"mixed_selection__threshold_out":0.05,
+								"mixed_selection__verbose":True},
+							verbose=True,
+							regressors=True,
+							ensemble=True,
+							featurePercentage=0.5,
+							n_jobs=3)
+						
 </code>
