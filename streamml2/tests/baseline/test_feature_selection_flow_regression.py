@@ -52,14 +52,14 @@ import sys
 sys.path.append(os.getcwd()) #I.e., make it a path variable
 sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
-
+import streamml2_test
 from streamml2_test.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
 from sklearn.datasets import load_boston
 boston=load_boston()
 X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
 y=pd.DataFrame(boston['target'],columns=["target"])
 
-return_dict = FeatureSelectionStream(X,y).flow(["plsr", "mixed_selection", "rfr", "abr", "svr"],
+return_dict = FeatureSelectionStream(X,y).flow(["mixed_selection", "rfr", "abr", "svr", "enet", "lasso"],
                                                 params={"mixed_selection__threshold_in":0.01,
                                                         "mixed_selection__threshold_out":0.05,
                                                         "mixed_selection__verbose":True},

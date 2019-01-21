@@ -4,10 +4,6 @@ import pandas as pd
 import numpy as np
 import math
 
-# Statistics
-from statsmodels.regression import linear_model
-import statsmodels.api as sm
-
 # Data Splitting
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import RepeatedStratifiedKFold
@@ -28,7 +24,8 @@ import warnings
 warnings.filterwarnings("ignore")
 
 # Regressors
-from sklearn.cross_decomposition import PLSRegression
+from ..models.regressors.PLSRegressorFeatureSelectionModel import PLSRegressorFeatureSelectionModel
+from ..models.regressors.MixedSelectionFeatureSelectionModel import MixedSelectionFeatureSelectionModel
 from ...model_selection.models.regressors.SupportVectorRegressorPredictiveModel import SupportVectorRegressorPredictiveModel
 from ...model_selection.models.regressors.LassoRegressorPredictiveModel import LassoRegressorPredictiveModel
 from ...model_selection.models.regressors.ElasticNetRegressorPredictiveModel import ElasticNetRegressorPredictiveModel
@@ -39,10 +36,10 @@ from ...model_selection.models.regressors.AdaptiveBoostingRegressorPredictiveMod
 from ...model_selection.models.classifiers.AdaptiveBoostingClassifierPredictiveModel import AdaptiveBoostingClassifierPredictiveModel
 from ...model_selection.models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
 from ...model_selection.models.classifiers.SupportVectorClassifierPredictiveModel import SupportVectorClassifierPredictiveModel
-
-from skcriteria import Data, MAX
-from skcriteria.madm import closeness, simple
             
+# MADM
+from .MADMFeatureSelection import MADMFeatureSelection
+
 class FeatureSelectionStream:
     
     #Properties
@@ -141,8 +138,7 @@ class FeatureSelectionStream:
             else:
                 print("Invalid model selected. Please set regressors=True or regressors=False.")
                 print
-                
-
+        
         def supportVectorRegression():
             self._svr_params={}
             for k,v in self._allParams.items():
@@ -222,123 +218,16 @@ class FeatureSelectionStream:
     
         def mixed_selection():
             
-            if self._verbose:
-                print("Executing: mixed_selection")
-            
-            
-            X = self._X
-            y = self._y
-            
-            initial_list=[]
-            threshold_in_specified = False
-            threshold_out_specified = False
-
-            if "mixed_selection__threshold_in" in self._allParams.keys():
-              assert(isinstance(self._allParams["mixed_selection__threshold_in"], float), "threshold_in must be a float")
-              threshold_in = self._allParams["mixed_selection__threshold_in"]
-              threshold_in_specified=True
-            else:
-              threshold_in=0.01
-
-            if "mixed_selection__threshold_out" in self._allParams.keys():
-              assert(isinstance(self._allParams["mixed_selection__threshold_out"], float), "threshold_out must be a float")
-              threshold_out = self._allParams["mixed_selection__threshold_out"]
-              threshold_out_specified=True
-            else:
-              threshold_out = 0.05
-
-            if "mixed_selection__verbose" in self._allParams.keys():
-              assert(isinstance(self._allParams["mixed_selection__verbose"], bool), "verbose must be a bool")
-              verbose = self._allParams["mixed_selection__verbose"]
-            else:
-              verbose = False
-            
-            if threshold_in_specified and threshold_out_specified:
-              assert(threshold_in < threshold_out, "threshold in must be strictly less than the threshold out to avoid infinite looping.")
-
-
-            #initial_list = self._initial_list
-            #threshold_in = self._threshold_in
-            #threshold_out = self._threshold_out
-            #verbse = self._verbose
-            
-            """ Perform a forward-backward feature selection 
-            based on p-value from statsmodels.api.OLS
-            Arguments:
-                X - pandas.DataFrame with candidate features
-                y - list-like with the target
-                initial_list - list of features to start with (column names of X)
-                threshold_in - include a feature if its p-value < threshold_in
-                threshold_out - exclude a feature if its p-value > threshold_out
-                verbose - whether to print the sequence of inclusions and exclusions
-            Returns: list of selected features 
-            Always set threshold_in < threshold_out to avoid infinite looping.
-            See https://en.wikipedia.org/wiki/Stepwise_regression for the details
-            """
-                      
-            included = list(initial_list)
-            while True:
-                changed=False
-                
-                # forward step
-                excluded = list(set(X.columns)-set(included))
-                new_pval = pd.Series(index=excluded)
-    
-                for new_column in excluded:
-
-                    model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included+[new_column]]))).fit()
-                    new_pval[new_column] = model.pvalues[new_column]
-
-                best_pval = new_pval.min()
-
-                if best_pval < threshold_in:
-                    best_feature = new_pval.idxmin()
-                    #best_feature = new_pval.argmin()
-                    included.append(best_feature)
-                    changed=True
-                    if verbose:
-                        print('Adding  {:30} with p-value {:.6}'.format(best_feature, best_pval))
-
-                # backward step
-                model = sm.OLS(y, sm.add_constant(pd.DataFrame(X[included]))).fit()
-                # use all coefs except intercept
-                pvalues = model.pvalues.iloc[1:]
-                worst_pval = pvalues.max() # null if pvalues is empty
-                if worst_pval > threshold_out:
-                    changed=True
-                    worst_feature = pvalues.idxmax()
-                    #worst_feature = pvalues.argmax()
-                    included.remove(worst_feature)
-                    if verbose:
-                        print('Dropping {:30} with p-value {:.6}'.format(worst_feature, worst_pval))
-
-                if not changed:
-                    break
-
-            new_included = []
-            for col in X.columns:
-                if col in included:
-                  new_included.append(1)
-                else:
-                  new_included.append(0)
-
-            return new_included
+            mixedSelectionModel = MixedSelectionFeatureSelectionModel(self._X, self._y, self._allParams, self._verbose)
+            keptFeatures = mixedSelectionModel.execute()
+            return keptFeatures
 
         def partialLeastSquaresRegression():
 
-            if self._verbose:
-                print("Executing: plsr")
-            # The components are not helpful for this context. They might be for transformation, however.
-            #if "plsr__n_components" in self._allParams.keys():
-            #  n_components = self._allParams["plsr__n_components"]
-            #else:
-            #  n_components = 2
-            pls_model = PLSRegression()
-            pls_out = pls_model.fit(self._X, self._y)
-
-            # The coefficients are used to show direction of the relationship
-            return abs(pls_out.coef_.flatten())
-    
+            plsrModel = PLSRegressorFeatureSelectionModel(self._X, self._y, self._allParams, self._verbose)
+            abs_coefs = plsrModel.execute()
+            return abs_coefs
+        
         ############################################
         ########## Classifiers Start Here ##########
         ############################################
@@ -420,10 +309,9 @@ class FeatureSelectionStream:
                                                                                      self._y,
                                                                                      test_size=self._test_size)
 
-        
         # Wrapper models    
         self._key_features={}
-        
+
         if self._regressors:
             for key in models_to_flow:
                  self._key_features[key]=regression_options[key]()
@@ -442,51 +330,8 @@ class FeatureSelectionStream:
         self._kept_features = None
         if self._ensemble:
 
-            alternative_names = self._X.columns.tolist()
-            criterion_names = list(self._key_features.keys())
-            criteria = [MAX for i in criterion_names]
-            weights = [i/len(criterion_names) for i in range(len(criterion_names))]
-
-            df = pd.DataFrame(self._key_features,
-                              index=alternative_names)
- 
-            data = Data(df.as_matrix(),
-                        criteria,
-                        weights,
-                        anames=df.index.tolist(),
-                        cnames=df.columns
-                        )
-            #if self._verbose:
-              #data.plot("radar");
-
-            dm1 = simple.WeightedSum()
-            dm2 = simple.WeightedProduct()
-            dm3 = closeness.TOPSIS()
-            dec1 = dm1.decide(data)
-            dec2 = dm2.decide(data)
-            dec3 = dm3.decide(data)
-            
-            self._ensemble_results = pd.DataFrame({"TOPSIS":dec3.rank_,
-                                                  "WeightedSum":dec1.rank_,
-                                                  "WeightedProduct":dec2.rank_},
-                                                  index=df.index.tolist())
-            
-            # Only keep features that our decision makers deemed in the top % specified
-            num_features_requested=math.ceil(len(alternative_names)*self._featurePercentage)
-            ranks=dec1.rank_ + dec2.rank_ + dec3.rank_
-            argmin_sorted=np.argpartition(ranks, num_features_requested)
-            self._kept_features=[]
-            
-            count=0
-            for i in argmin_sorted:
-                self._kept_features.append(alternative_names[i])
-                count+=1
-                if count >= num_features_requested:
-                    break
-              
-            if self._verbose:
-                print("",self._featurePercentage*100, " % -> ("+str(num_features_requested)+") features kept.")
-                print(self._kept_features)
+            madmSelector=MADMFeatureSelection(self._X, self._y, self._key_features, self._featurePercentage, self._verbose)
+            self._ensemble_results, self._kept_features=madmSelector.execute()
           # Print data with only those features
             return_dict['ensemble_results']=self._ensemble_results
             return_dict['kept_features']=self._kept_features
