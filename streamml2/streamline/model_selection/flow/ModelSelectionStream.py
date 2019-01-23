@@ -92,6 +92,9 @@ class ModelSelectionStream:
     _modelSelection=None
     _stratified=None
     _metrics_significance_dict=None
+    _random_grid=None
+    _n_iter=None
+    
     """
     Constructor: __init__:
     
@@ -403,7 +406,7 @@ class ModelSelectionStream:
     """
     def flow(self, 
              models_to_flow=[], 
-             params=None, 
+             params={}, 
              test_size=0.3, 
              nfolds=3,
              nrepeats=10,
@@ -414,7 +417,9 @@ class ModelSelectionStream:
              verbose=False, 
              regressors=True,
              modelSelection=False,
-             cut=None):
+             cut=None,
+             random_grid=False,
+             n_iter=10):
       
         assert isinstance(nfolds, int), "nfolds must be integer"
         assert isinstance(nrepeats, int), "nrepeats must be integer"
@@ -427,6 +432,8 @@ class ModelSelectionStream:
         assert isinstance(modelSelection, bool), "modelSelection must be bool"
         assert isinstance(stratified, bool), "modelSelection must be bool"
         assert isinstance(stats, bool), "stats must be bool"
+        assert isinstance(random_grid, bool), "random_grid must be bool"
+        assert isinstance(n_iter, int), "random_grid must be int"
         
         self._nfolds=nfolds
         self._nrepeats=nrepeats
@@ -440,6 +447,8 @@ class ModelSelectionStream:
         self._cut = cut
         self._stratified=stratified
         self._stats=stats
+        self._random_grid=random_grid
+        self._n_iter=n_iter
         
         # Inform the streamline to user.
         stringbuilder=""
@@ -469,7 +478,7 @@ class ModelSelectionStream:
             
             self._lr_params={}
             for k,v in self._allParams.items():
-                if "lr" in k:
+                if "lr" == k.split("__")[0]:
                     self._lr_params[k]=v
 
                 
@@ -478,13 +487,16 @@ class ModelSelectionStream:
                                                    self._lr_params,
                                                    self._nfolds, 
                                                    self._n_jobs,
+                                                   self._random_grid,
+                                                   self._n_iter,
                                                    self._verbose)
             return model
             
         def supportVectorRegression():
             self._svr_params={}
             for k,v in self._allParams.items():
-                if "svr" in k:
+                if "svr" == k.split("__")[0]:
+                    
                     self._svr_params[k]=v
 
                 
@@ -493,6 +505,8 @@ class ModelSelectionStream:
                                                           self._svr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return model
             
@@ -500,7 +514,8 @@ class ModelSelectionStream:
         def randomForestRegression():
             self._rfr_params={}
             for k,v in self._allParams.items():
-                if "rfr" in k:
+                if "rfr" == k.split("__")[0]:
+                    print("RF HAD PARAMS")
                     self._rfr_params[k]=v
 
                 
@@ -509,6 +524,8 @@ class ModelSelectionStream:
                                                           self._rfr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return model
             
@@ -518,7 +535,7 @@ class ModelSelectionStream:
         def adaptiveBoostingRegression():
             self._abr_params={}
             for k,v in self._allParams.items():
-                if "abr" in k:
+                if "abr" == k.split("__")[0]:
                     self._abr_params[k]=v
 
                 
@@ -527,13 +544,15 @@ class ModelSelectionStream:
                                                               self._abr_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
         def knnRegression():
             self._knnr_params={}
             for k,v in self._allParams.items():
-                if "knnr" in k:
+                if "knnr" == k.split("__")[0]:
                     self._knnr_params[k]=v
 
             
@@ -543,6 +562,8 @@ class ModelSelectionStream:
                                                 self._knnr_params,
                                                 self._nfolds, 
                                                 self._n_jobs,
+                                                   self._random_grid,
+                                                   self._n_iter,
                                                 self._verbose)
             
             return model
@@ -550,7 +571,7 @@ class ModelSelectionStream:
         def ridgeRegression():
             self._ridge_params={}
             for k,v in self._allParams.items():
-                if "ridge" in k:
+                if "ridge" == k.split("__")[0]:
                     self._ridge_params[k]=v
 
                 
@@ -559,6 +580,8 @@ class ModelSelectionStream:
                                                           self._ridge_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return model
             
@@ -566,7 +589,7 @@ class ModelSelectionStream:
         def lassoRegression():
             self._lasso_params={}
             for k,v in self._allParams.items():
-                if "lasso" in k:
+                if "lasso" == k.split("__")[0]:
                     self._lasso_params[k]=v
 
                 
@@ -575,6 +598,8 @@ class ModelSelectionStream:
                                                           self._lasso_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return model
             
@@ -582,7 +607,7 @@ class ModelSelectionStream:
         def elasticNetRegression():
             self._enet_params={}
             for k,v in self._allParams.items():
-                if "enet" in k:
+                if "enet" == k.split("__")[0]:
                     self._enet_params[k]=v
 
             model = ElasticNetRegressorPredictiveModel(self._X_train, 
@@ -590,13 +615,15 @@ class ModelSelectionStream:
                                                           self._enet_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return model
             
         def multilayerPerceptronRegression():
             self._mlpr_params={}
             for k,v in self._allParams.items():
-                if "mlpr" in k:
+                if "mlpr" == k.split("__")[0]:
                     self._mlpr_params[k]=v
 
             model = MultilayerPerceptronRegressorPredictiveModel(self._X_train, 
@@ -604,6 +631,8 @@ class ModelSelectionStream:
                                                           self._mlpr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -612,7 +641,7 @@ class ModelSelectionStream:
         def leastAngleRegression():
             self._lar_params={}
             for k,v in self._allParams.items():
-                if "lar" in k:
+                if "lar" == k.split("__")[0]:
                     self._lar_params[k]=v
 
             model = LeastAngleRegressorPredictiveModel(self._X_train, 
@@ -620,6 +649,8 @@ class ModelSelectionStream:
                                                           self._lar_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -628,7 +659,7 @@ class ModelSelectionStream:
         def lassoLeastAngleRegression():
             self._lasso_lar_params={}
             for k,v in self._allParams.items():
-                if "lasso_lar" in k:
+                if "lasso_lar" == k.split("__")[0]:
                     self._lasso_lar_params[k]=v
 
             model = LassoLeastAngleRegressorPredictiveModel(self._X_train, 
@@ -636,6 +667,8 @@ class ModelSelectionStream:
                                                           self._lasso_lar_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -644,7 +677,7 @@ class ModelSelectionStream:
         def bayesianRidgeRegression():
             self._bays_ridge={}
             for k,v in self._allParams.items():
-                if "bays_ridge" in k:
+                if "bays_ridge" == k.split("__")[0]:
                     self._bays_ridge[k]=v
 
             model = BayesianRidgeRegressorPredictiveModel(self._X_train, 
@@ -652,6 +685,8 @@ class ModelSelectionStream:
                                                           self._bays_ridge,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -659,7 +694,7 @@ class ModelSelectionStream:
         def ardRegression():
             self._ardr_params={}
             for k,v in self._allParams.items():
-                if "ardr" in k:
+                if "ardr" == k.split("__")[0]:
                     self._ardr_params[k]=v
 
             model = ARDRegressorPredictiveModel(self._X_train, 
@@ -667,6 +702,8 @@ class ModelSelectionStream:
                                                 self._ardr_params,
                                                 self._nfolds, 
                                                 self._n_jobs,
+                                                   self._random_grid,
+                                                   self._n_iter,
                                                 self._verbose)
             
             return model
@@ -674,7 +711,7 @@ class ModelSelectionStream:
         def passiveAggressiveRegression():
             self._par_params={}
             for k,v in self._allParams.items():
-                if "par" in k:
+                if "par" == k.split("__")[0]:
                     self._par_params[k]=v
 
             model = PassiveAggressiveRegressorPredictiveModel(self._X_train, 
@@ -682,6 +719,8 @@ class ModelSelectionStream:
                                                           self._par_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -689,7 +728,7 @@ class ModelSelectionStream:
         def theilSenRegression():
             self._tsr_params={}
             for k,v in self._allParams.items():
-                if "tsr" in k:
+                if "tsr" == k.split("__")[0]:
                     self._tsr_params[k]=v
 
             model = TheilSenRegressorPredictiveModel(self._X_train, 
@@ -697,6 +736,8 @@ class ModelSelectionStream:
                                                           self._tsr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -704,7 +745,7 @@ class ModelSelectionStream:
         def huberRegression():
             self._hr_params={}
             for k,v in self._allParams.items():
-                if "hr" in k:
+                if "hr" == k.split("__")[0]:
                     self._hr_params[k]=v
 
             model = HuberRegressorPredictiveModel(self._X_train, 
@@ -712,6 +753,8 @@ class ModelSelectionStream:
                                                           self._hr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -719,7 +762,7 @@ class ModelSelectionStream:
         def gaussianProcessRegression():
             self._gpr_params={}
             for k,v in self._allParams.items():
-                if "gpr" in k:
+                if "gpr" == k.split("__")[0]:
                     self._gpr_params[k]=v
 
             model = GaussianProcessRegressorPredictiveModel(self._X_train, 
@@ -727,6 +770,8 @@ class ModelSelectionStream:
                                                           self._gpr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -734,7 +779,7 @@ class ModelSelectionStream:
         def gradientBoostingRegression():
             self._gbr_params={}
             for k,v in self._allParams.items():
-                if "gbr" in k:
+                if "gbr" == k.split("__")[0]:
                     self._gbr_params[k]=v
 
             model = GradientBoostingRegressorPredictiveModel(self._X_train, 
@@ -742,6 +787,8 @@ class ModelSelectionStream:
                                                           self._gbr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -749,7 +796,7 @@ class ModelSelectionStream:
         def baggingRegression():
             self._br_params={}
             for k,v in self._allParams.items():
-                if "br" in k:
+                if "br" == k.split("__")[0]:
                     self._br_params[k]=v
 
             model = BaggingRegressorPredictiveModel(self._X_train, 
@@ -757,6 +804,8 @@ class ModelSelectionStream:
                                                           self._br_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -764,7 +813,7 @@ class ModelSelectionStream:
         def decisionTreeRegression():
             self._dtr_params={}
             for k,v in self._allParams.items():
-                if "dtr" in k:
+                if "dtr" == k.split("__")[0]:
                     self._dtr_params[k]=v
 
             model = DecisionTreeRegressorPredictiveModel(self._X_train, 
@@ -772,6 +821,8 @@ class ModelSelectionStream:
                                                           self._dtr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             
             return model
@@ -783,7 +834,7 @@ class ModelSelectionStream:
         def adaptiveBoostingClassifier():
             self._abc_params={}
             for k,v in self._allParams.items():
-                if "abc" in k:
+                if "abc" == k.split("__")[0]:
                     self._abc_params[k]=v
 
                 
@@ -792,6 +843,8 @@ class ModelSelectionStream:
                                                               self._abc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
@@ -799,7 +852,7 @@ class ModelSelectionStream:
         def decisionTreeClassifier():
             self._dtc_params={}
             for k,v in self._allParams.items():
-                if "dtc" in k:
+                if "dtc" == k.split("__")[0]:
                     self._dtc_params[k]=v
 
                 
@@ -808,6 +861,8 @@ class ModelSelectionStream:
                                                               self._dtc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
@@ -815,7 +870,7 @@ class ModelSelectionStream:
         def gradientBoostingClassifier():
             self._gbc_params={}
             for k,v in self._allParams.items():
-                if "gbc" in k:
+                if "gbc" == k.split("__")[0]:
                     self._gbc_params[k]=v
 
                 
@@ -824,13 +879,15 @@ class ModelSelectionStream:
                                                               self._gbc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
         def guassianProcessClassifier():
             self._gpc_params={}
             for k,v in self._allParams.items():
-                if "gpc" in k:
+                if "gpc" == k.split("__")[0]:
                     self._gpc_params[k]=v
 
                 
@@ -839,6 +896,8 @@ class ModelSelectionStream:
                                                               self._gpc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
@@ -846,7 +905,7 @@ class ModelSelectionStream:
         def knnClassifier():
             self._knnc_params={}
             for k,v in self._allParams.items():
-                if "knnc" in k:
+                if "knnc" == k.split("__")[0]:
                     self._knnc_params[k]=v
 
                 
@@ -855,13 +914,15 @@ class ModelSelectionStream:
                                                               self._knnc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
         def logisticRegressionClassifier():
             self._logr_params={}
             for k,v in self._allParams.items():
-                if "logr" in k:
+                if "logr" == k.split("__")[0]:
                     self._logr_params[k]=v
 
                 
@@ -870,13 +931,15 @@ class ModelSelectionStream:
                                                               self._logr_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
         def multilayerPerceptronClassifier():
             self._mlpc_params={}
             for k,v in self._allParams.items():
-                if "mlpc" in k:
+                if "mlpc" == k.split("__")[0]:
                     self._mlpc_params[k]=v
 
                 
@@ -885,13 +948,15 @@ class ModelSelectionStream:
                                                               self._mlpc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
         def naiveBayesClassifier():
             self._nbc_params={}
             for k,v in self._allParams.items():
-                if "nbc" in k:
+                if "nbc" == k.split("__")[0]:
                     self._nbc_params[k]=v
 
                 
@@ -900,13 +965,15 @@ class ModelSelectionStream:
                                                               self._nbc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
         def randomForestClassifier():
             self._rfc_params={}
             for k,v in self._allParams.items():
-                if "rfc" in k:
+                if "rfc" == k.split("__")[0]:
                     self._rfc_params[k]=v
 
                 
@@ -915,13 +982,15 @@ class ModelSelectionStream:
                                                               self._rfc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model
         
         def stochasticGradientDescentClassifier():
             self._sgdc_params={}
             for k,v in self._allParams.items():
-                if "sgdc" in k:
+                if "sgdc" == k.split("__")[0]:
                     self._sgdc_params[k]=v
 
                 
@@ -930,13 +999,15 @@ class ModelSelectionStream:
                                                                       self._sgdc_params,
                                                                       self._nfolds, 
                                                                       self._n_jobs,
+                                                                       self._random_grid,
+                                                                       self._n_iter,
                                                                       self._verbose)
             return model
         
         def supportVectorClassifier():
             self._svc_params={}
             for k,v in self._allParams.items():
-                if "svc" in k:
+                if "svc" == k.split("__")[0]:
                     self._svc_params[k]=v
 
                 
@@ -945,6 +1016,8 @@ class ModelSelectionStream:
                                                                       self._svc_params,
                                                                       self._nfolds, 
                                                                       self._n_jobs,
+                                                                       self._random_grid,
+                                                                       self._n_iter,
                                                                       self._verbose)
             return model
         

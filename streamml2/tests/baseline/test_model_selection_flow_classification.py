@@ -86,7 +86,7 @@ y=pd.DataFrame(iris['target'], columns=['target'])
 
 # Classification Test
 
-"""
+
 params={ 'abc__algorithm':['SAMME'],
                                                         'abc__base_estimator':[LogisticRegression(), SVC(), GaussianNB(), RandomForestClassifier()],
                                                         'abc__n_estimators':[50, 100, 150],
@@ -98,6 +98,7 @@ params={ 'abc__algorithm':['SAMME'],
                       
                                   'mlpc__learning_rate':['constant','invscaling']}
 ["abc","rfc","logr","dtc", "gbc", "mlpc", "sgd","knnc"]
+"""
 """
 classification_options = {'abc':0,
                           'dtc':0,
@@ -111,8 +112,9 @@ classification_options = {'abc':0,
                             'sgd':0,
                             'svc':0}
 # returns
-results_dict = ModelSelectionStream(X,y).flow(list(classification_options.keys()),
-                                                    params={},
+#list(classification_options.keys())
+results_dict = ModelSelectionStream(X,y).flow(['abc','rfc','knnc','mlpc'],
+                                                    params=params,
                                                     metrics=[],
                                                     test_size=0.35,
                                                     nfolds=3,
@@ -122,6 +124,8 @@ results_dict = ModelSelectionStream(X,y).flow(list(classification_options.keys()
                                                     stratified=True,
                                                     stats=True,
                                                     modelSelection=True,
+                                                    random_grid=True,
+                                                    n_iter=3,
                                                     n_jobs=3)
 
 print("Best Models ... ")

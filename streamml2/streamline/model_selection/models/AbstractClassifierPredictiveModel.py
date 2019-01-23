@@ -1,4 +1,3 @@
-
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import cohen_kappa_score
@@ -8,7 +7,8 @@ from sklearn.metrics import f1_score
 from sklearn.metrics import precision_score
 from sklearn.metrics import recall_score
 from sklearn.metrics import accuracy_score
-
+from sklearn.model_selection import RandomizedSearchCV
+from sklearn.utils import shuffle
 from ..AbstractPredictiveModel import *
 
 class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
@@ -26,7 +26,7 @@ class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
     
     _validation_results=None
     
-    def __init__(self, modelType, X, y, params, nfolds, n_jobs, scoring, verbose):
+    def __init__(self, modelType, X, y, params, nfolds, n_jobs, scoring, random_grid, n_iter, verbose):
         
         #if self._verbose:
         #    print("Constructed AbstractClassifierPredictiveModel: "+self._code)
@@ -37,7 +37,7 @@ class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
         self._modelType = modelType
         self._y=y
         self._scoring=scoring
-        AbstractPredictiveModel.__init__(self, X, params, nfolds, n_jobs, verbose)
+        AbstractPredictiveModel.__init__(self, X, params, nfolds, n_jobs, random_grid, n_iter,verbose)
         
     #methods
     def validate(self, Xtest, ytest, metrics, verbose=False):
@@ -77,18 +77,27 @@ class AbstractClassifierPredictiveModel(AbstractPredictiveModel):
         
         return self._validation_results
     
-    def constructClassifier(self, model):
-        self._pipe          = Pipeline([(self._code, model)])
-
-        self._grid          = GridSearchCV(self._pipe,
-                                            param_grid=self._params, 
+    def constructClassifier(self, model, random_grid):
+        
+        self._pipe = Pipeline([(self._code, model)])
+        self._X, self._y = shuffle(self._X, self._y, random_state=0)
+        
+        if not random_grid:
+            self._grid = GridSearchCV(self._pipe,
+                                    param_grid=self._params, 
+                                    n_jobs=self._n_jobs,
+                                    cv=self._nfolds, 
+                                    verbose=False)
+        else:
+            self._grid = RandomizedSearchCV(self._pipe, 
+                                            param_distributions = self._params,
                                             n_jobs=self._n_jobs,
-                                            cv=self._nfolds, 
-                                            verbose=False)
+                                            cv=self._nfolds,
+                                            verbose=False,
+                                            n_iter=self._n_iter)
         
-        
-        self._model                 = self._grid.fit(self._X,self._y).best_estimator_.named_steps[self._code]
-        return self._model   
+        self._model = self._grid.fit(self._X,self._y).best_estimator_.named_steps[self._code]
+        return self._model    
 
     def getValidationResults(self):
         return self._validation_results

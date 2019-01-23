@@ -25,7 +25,9 @@ Model Selection Params:
              verbose=False, 
              regressors=True,
              modelSelection=False,
-             cut=None):
+             cut=None,
+             random_grid=False,
+             n_iter=10):
 
 Model Selection Models:
         # Valid regressors
@@ -121,21 +123,38 @@ regression_options={"lr" : 0,
                    "bays_ridge":0,
                    "lasso_lar":0,
                    "lar":0}
-results_dict = ModelSelectionStream(X,y).flow(list(regression_options.keys()),
-                                                                    params={},
-                                                                    metrics=[],
-                                                                    test_size=0.5,
-                                                                    nfolds=10,
-                                                                    nrepeats=10,
-                                                                    verbose=True, 
-                                                                    regressors=True,
-                                                                    stratified=True, 
-                                                                    cut=y['target'].mean(),
-                                                                    modelSelection=True,
-                                                                    n_jobs=3)
+params= {'abr__base_estimator':[LinearRegression(), SVR(), RandomForestRegressor()],
+                                                            'abr__n_estimators':np.arange(1,100, 7),
+                                                            'rfr__n_estimators':np.arange(1,100, 7),
+                                                            'knnr__n_neighbors':np.arange(1,100, 7),
+                                                            'mlpr__hidden_layer_sizes':[(100), (100,100), (100,100,100), (100,100,100,100)],
+                                                            'mlpr__alpha':[1e-3,1e-2,1e-1],
+                                                            'mlpr__activation':['identity','logistic','relu','tanh'],
+                                                            'mlpr__learning_rate':['constant','invscaling'],
+                                                            'svr__C':np.arange(1e-3,1e-1,0.001),
+                                                            'svr__gamma':np.arange(1e-5,1e-1,0.001),
+                                                            'svr__kernel':['rbf','linear','poly'],
+                                                            'svr__degree':np.arange(1,20,2)}
+
+results_dict = ModelSelectionStream(X,y).flow(['abr','rfr','knnr', 'mlpr'],
+                                                    params=params,
+                                                    metrics=[],
+                                                    test_size=0.5,
+                                                    nfolds=3,
+                                                    nrepeats=3,
+                                                    verbose=True, 
+                                                    regressors=True,
+                                                    stratified=False, 
+                                                  #  cut=y['target'].mean(),
+                                                    modelSelection=False,
+                                                    n_jobs=3,
+                                                    random_grid=True,
+                                                    n_iter=3)
 
 print("Best Models ... ")
 print(results_dict["models"])
+
+"""
 print("Final Errors ... ")
 print(pd.DataFrame(results_dict["final_errors"]))
 print("Metric Table ...")
@@ -144,3 +163,4 @@ print("Significance By Metric ...")
 for k in results_dict["significance"].keys():
     print(k)
     print(results_dict["significance"][k])
+    """

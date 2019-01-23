@@ -20,7 +20,7 @@ class AbstractPredictiveModel:
     _verbose=None
     
     #constructor
-    def __init__(self, X, params, nfolds, n_jobs, verbose):
+    def __init__(self, X, params, nfolds, n_jobs, random_grid, n_iter, verbose):
         if self._verbose:
             print ("Constructed AbstractPredictiveModel: "+self._code)
         assert isinstance(params, dict), "params must be dict"
@@ -28,6 +28,8 @@ class AbstractPredictiveModel:
         self._params = params
         self._nfolds=nfolds
         self._n_jobs=n_jobs
+        self._random_grid=random_grid
+        self._n_iter=n_iter
         self._verbose=verbose
     
     #methods
