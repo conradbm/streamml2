@@ -19,6 +19,25 @@ def listofdict2dictoflist(somelistofdicts):
     return nd
 
 
+def get_classification_dataset():
+    from sklearn.datasets import load_iris
+    import pandas as pd
+    
+    iris=load_iris()
+    X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
+    y=pd.DataFrame(iris['target'], columns=['target'])
+    
+    return (X,y)
+
+def get_regression_dataset():
+    from sklearn.datasets import load_boston
+    import pandas as pd
+    
+    boston=load_boston()
+    X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
+    y=pd.DataFrame(boston['target'],columns=["target"])
+    
+    return (X,y)
 """
 Utility for users to quickly get all of the supported regressors for model selection.
 """

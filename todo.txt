@@ -1,0 +1,55 @@
+
+Feature Selection
+- Add OMP
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.OrthogonalMatchingPursuit.html#sklearn.linear_model.OrthogonalMatchingPursuit
+from sklearn.linear_model import OrthogonalMatchingPursuit
+reg = OrthogonalMatchingPursuit().fit(X, y)
+reg.coef_
+
+- Add LARS
+lars.coef_
+
+- Add LARSLasso
+-larslasso.coef_
+
+- Add LassoLarsIC
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLarsIC.html#sklearn.linear_model.LassoLarsIC
+from sklearn.linear_model import LassoLarsIC
+lasslarsic.coef_
+
+Model Selection
+- Add OMP
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.OrthogonalMatchingPursuit.html#sklearn.linear_model.OrthogonalMatchingPursuit
+from sklearn.linear_model import OrthogonalMatchingPursuit
+reg = OrthogonalMatchingPursuit().fit(X, y)
+
+- Add LassoLarsIC
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLarsIC.html#sklearn.linear_model.LassoLarsIC
+from sklearn.linear_model import LassoLarsIC
+reg = linear_model.LassoLarsIC(criterion='bic').fit(X,y)
+
+- Add RANSAC
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.RANSACRegressor.html#sklearn.linear_model.RANSACRegressor
+from sklearn.linear_model import RANSACRegressor
+reg = RANSACRegressor(random_state=0).fit(X, y)
+
+- Add Perceptron
+https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Perceptron.html#sklearn.linear_model.Perceptron
+
+Transformation
+
+- Add PolynomialFeatures
+https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.PolynomialFeatures.html#sklearn.preprocessing.PolynomialFeatures
+
+- Add Guassian Random Projection
+https://scikit-learn.org/stable/modules/generated/sklearn.random_projection.GaussianRandomProjection.html#sklearn.random_projection.GaussianRandomProjection
+
+- Add MinMax Scaler
+https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MinMaxScaler.html#sklearn.preprocessing.MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
+dat = MinMaxScaler().transform(X)
+
+-Add MaxAbs Scaler
+https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MaxAbsScaler.html#sklearn.preprocessing.MaxAbsScaler
+from sklearn.preprocessing import MaxAbsScaler
+transformer = MaxAbsScaler().fit(X).transform(X)
