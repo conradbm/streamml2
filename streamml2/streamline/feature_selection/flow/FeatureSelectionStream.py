@@ -57,6 +57,8 @@ class FeatureSelectionStream:
     _classifiers_results=None
     _modelSelection=None
     _featurePercentage=None
+    _random_grid=None
+    _n_iter=None
     """
     Constructor: __init__:
     
@@ -90,9 +92,10 @@ class FeatureSelectionStream:
              verbose=False, 
              regressors=True,
              ensemble=False,
-             featurePercentage=0.25):
-      
-        # Enforce parameters
+             featurePercentage=0.25,
+             random_grid=False,
+             n_iter=10):
+
         assert isinstance(nfolds, int), "nfolds must be integer"
         assert isinstance(nrepeats, int), "nrepeats must be integer"
         assert isinstance(n_jobs, int), "n_jobs must be integer"
@@ -102,13 +105,9 @@ class FeatureSelectionStream:
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
         assert isinstance(ensemble, bool), "ensemble must be bool"
+        assert isinstance(random_grid, bool), "random_grid must be bool"
+        assert isinstance(n_iter, int), "random_grid must be int"
         
-        # Enforce logic for regressors
-        #if regressors:
-        #  assert(not any(["c" in k.split("__") for k,v in params.items()]), "You selected classifiers with the regressors flag true. Comon\' man!")
-        #else:
-        #  assert(not any(["r" in k.split("__") for k,v in params.items()]), "You selected regressors with the regressors flag false. Comon\' man!")
-
         self._nfolds=nfolds
         self._nrepeats=nrepeats
         self._n_jobs=n_jobs
@@ -119,7 +118,9 @@ class FeatureSelectionStream:
         self._regressors=regressors
         self._ensemble=ensemble
         self._featurePercentage=featurePercentage
-
+        self._random_grid=random_grid
+        self._n_iter=n_iter
+        
         # Inform the streamline to user.
         stringbuilder=""
         for thing in models_to_flow:
@@ -128,13 +129,13 @@ class FeatureSelectionStream:
             
         if self._verbose:
             if self._regressors:
-                print("*************************")
+                print("*************************************************************************")
                 print("=> (Regressor) "+"=> Feature Selection Streamline: " + stringbuilder[:-5])
-                print("*************************")
+                print("*************************************************************************")
             elif self._regressors == False:
-                print("*************************")
+                print("*************************************************************************")
                 print("=> (Classifier) "+"=> Feature Selection Streamline: " + stringbuilder[:-5])
-                print("*************************")
+                print("*************************************************************************")
             else:
                 print("Invalid model selected. Please set regressors=True or regressors=False.")
                 print
@@ -142,7 +143,7 @@ class FeatureSelectionStream:
         def supportVectorRegression():
             self._svr_params={}
             for k,v in self._allParams.items():
-                if "svr" in k:
+                if "svr" == k.split("__")[0]:
                     self._svr_params[k]=v
 
             
@@ -152,13 +153,15 @@ class FeatureSelectionStream:
                                                           self._svr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return abs(model.getBestEstimator().coef_.flatten())
         
         def randomForestRegression():
             self._rfr_params={}
             for k,v in self._allParams.items():
-                if "rfr" in k:
+                if "rfr" == k.split("__")[0]:
                     self._rfr_params[k]=v
 
                 
@@ -167,6 +170,8 @@ class FeatureSelectionStream:
                                                           self._rfr_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return abs(model.getBestEstimator().feature_importances_.flatten())
             
@@ -175,7 +180,7 @@ class FeatureSelectionStream:
         def adaptiveBoostingRegression():
             self._abr_params={}
             for k,v in self._allParams.items():
-                if "abr" in k:
+                if "abr" == k.split("__")[0]:
                     self._abr_params[k]=v
 
                 
@@ -184,13 +189,15 @@ class FeatureSelectionStream:
                                                               self._abr_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return abs(model.getBestEstimator().feature_importances_.flatten())
         
         def lassoRegression():
             self._lasso_params={}
             for k,v in self._allParams.items():
-                if "lasso" in k:
+                if "lasso" == k.split("__")[0]:
                     self._lasso_params[k]=v
 
                 
@@ -199,13 +206,15 @@ class FeatureSelectionStream:
                                                           self._lasso_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return abs(model.getBestEstimator().coef_.flatten())
             
         def elasticNetRegression():
             self._enet_params={}
             for k,v in self._allParams.items():
-                if "enet" in k:
+                if "enet" == k.split("__")[0]:
                     self._enet_params[k]=v
 
             model = ElasticNetRegressorPredictiveModel(self._X_train, 
@@ -213,6 +222,8 @@ class FeatureSelectionStream:
                                                           self._enet_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
             return abs(model.getBestEstimator().coef_.flatten())
     
@@ -235,7 +246,7 @@ class FeatureSelectionStream:
         def adaptiveBoostingClassifier():
             self._abc_params={}
             for k,v in self._allParams.items():
-                if "abc" in k:
+                if "abc" == k.split("__")[0]:
                     self._abc_params[k]=v
 
                 
@@ -244,13 +255,15 @@ class FeatureSelectionStream:
                                                               self._abc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model.getBestEstimator().feature_importances_.flatten()
         
         def randomForestClassifier():
             self._rfc_params={}
             for k,v in self._allParams.items():
-                if "rfc" in k:
+                if "rfc" == k.split("__")[0]:
                     self._rfc_params[k]=v
 
                 
@@ -259,6 +272,8 @@ class FeatureSelectionStream:
                                                               self._rfc_params,
                                                               self._nfolds, 
                                                               self._n_jobs,
+                                                               self._random_grid,
+                                                               self._n_iter,
                                                               self._verbose)
             return model.getBestEstimator().feature_importances_.flatten()
         
@@ -266,7 +281,7 @@ class FeatureSelectionStream:
         def supportVectorClassifier():
             self._svc_params={}
             for k,v in self._allParams.items():
-                if "svc" in k:
+                if "svc" == k.split("__")[0]:
                     self._svc_params[k]=v
 
             
@@ -276,6 +291,8 @@ class FeatureSelectionStream:
                                                           self._svc_params,
                                                           self._nfolds, 
                                                           self._n_jobs,
+                                                           self._random_grid,
+                                                           self._n_iter,
                                                           self._verbose)
 
             coefs=model.getBestEstimator().coef_

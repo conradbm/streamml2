@@ -80,7 +80,7 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
     def constructRegressor(self, model, random_grid):
         
         self._pipe = Pipeline([(self._code, model)])
-        self._X, self._y = shuffle(self._X, self._y, random_state=0)
+        #self._X, self._y = shuffle(self._X, self._y)
         
         if not random_grid:
             self._grid = GridSearchCV(self._pipe,
@@ -90,11 +90,12 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
                                     verbose=False)
         else:
             self._grid = RandomizedSearchCV(self._pipe, 
-                                            param_distributions = self._params,
+                                            param_distributions=self._params,
                                             n_jobs=self._n_jobs,
                                             cv=self._nfolds,
                                             n_iter=self._n_iter,
                                             verbose=False)
+        
         self._model = self._grid.fit(self._X,self._y).best_estimator_.named_steps[self._code]
         return self._model    
     

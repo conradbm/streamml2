@@ -1,5 +1,6 @@
 from skcriteria import Data, MAX
 from skcriteria.madm import closeness, simple
+
 import pandas as pd
 import math
 import numpy as np
@@ -38,7 +39,8 @@ class MADMFeatureSelection():
         dec1 = dm1.decide(data)
         dec2 = dm2.decide(data)
         dec3 = dm3.decide(data)
-        
+
+        ranks=[dec1.rank_, dec2.rank_,dec3.rank_]
         self._ensemble_results = pd.DataFrame({"TOPSIS":dec3.rank_,
                                               "WeightedSum":dec1.rank_,
                                               "WeightedProduct":dec2.rank_},
@@ -46,8 +48,8 @@ class MADMFeatureSelection():
         
         # Only keep features that our decision makers deemed in the top % specified
         num_features_requested=math.ceil(len(alternative_names)*self._featurePercentage)
-        ranks=dec1.rank_ + dec2.rank_ + dec3.rank_
-        argmin_sorted=np.argpartition(ranks, num_features_requested)
+        sum_ranks=sum(ranks)
+        argmin_sorted=np.argpartition(sum_ranks, num_features_requested)
         self._kept_features=[]
         
         count=0

@@ -13,8 +13,7 @@
 
 import pandas as pd
 import numpy as np
-import os
-import sys
+
 #sys.path.append(os.getcwd()) #I.e., make it a path variable
 #sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
@@ -53,26 +52,28 @@ Feature Selection Models:
                                  }
 """
 
-from streamml2_test.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+from streamml2_test.streams import FeatureSelectionStream
+from streamml2_test.streamml2.utils.helpers import *
 from sklearn.datasets import load_iris
+
 iris=load_iris()
 X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
 y=pd.DataFrame(iris['target'], columns=['target'])
 
-return_dict = FeatureSelectionStream(X,y).flow(["rfc", "abc", "svc"],
-                                                params={},
+models=get_feature_selection_classifiers()
+example_params=get_model_selection_classifiers_params()
+
+return_dict = FeatureSelectionStream(X,y).flow(models,
+                                                params=example_params,
                                                 verbose=True,
                                                 regressors=False,
                                                 ensemble=True,
                                                 featurePercentage=0.5,
                                                 n_jobs=3)
 
-print("Feature data ...")
-print(pd.DataFrame(return_dict['feature_importances']))
-print("Features rankings decision maker...")
-print(return_dict['ensemble_results'])
-print("Reduced data ...")
-print(X[return_dict['kept_features']].head())
+for k in return_dict.keys():
+    print(k)
+    print(return_dict[k])
 
 #print(X.shape)
 #print (y.shape)

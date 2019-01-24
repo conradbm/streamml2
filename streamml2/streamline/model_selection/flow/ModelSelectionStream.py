@@ -416,7 +416,7 @@ class ModelSelectionStream:
              metrics=[], 
              verbose=False, 
              regressors=True,
-             modelSelection=False,
+             modelSelection=True,
              cut=None,
              random_grid=False,
              n_iter=10):
@@ -496,7 +496,6 @@ class ModelSelectionStream:
             self._svr_params={}
             for k,v in self._allParams.items():
                 if "svr" == k.split("__")[0]:
-                    
                     self._svr_params[k]=v
 
                 
@@ -515,7 +514,6 @@ class ModelSelectionStream:
             self._rfr_params={}
             for k,v in self._allParams.items():
                 if "rfr" == k.split("__")[0]:
-                    print("RF HAD PARAMS")
                     self._rfr_params[k]=v
 
                 

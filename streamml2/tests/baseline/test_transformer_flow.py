@@ -31,23 +31,24 @@ pca has the additional  pca__percent_variance option which keeps only the compon
 """
 
 import pandas as pd
-import numpy as np
-import os
-import sys
-#sys.path.append("C:\\Users\\bmccs\\Desktop\\streamml2")
-# must change the package name or it will reference your installed PyPi version of streamml2
-from streamml2_test.streamml2.streamline.transformation.flow.TransformationStream import TransformationStream
+from streamml2_test.streams import TransformationStream
+from streamml2_test.streamml2.utils.helpers import *
 from sklearn.datasets import fetch_20newsgroups
 
 categories = ['alt.atheism', 'talk.religion.misc','comp.graphics', 'sci.space']
 newsgroups_train = fetch_20newsgroups(subset='train',categories=categories)
+
+models=get_transformer_models()
+print("Potential models...", models)
+params=get_transformer_params()
+print("Potential parameters...", params)
 
 X2 = TransformationStream(newsgroups_train.data,corpus=True, method='tfidf').flow(["pca","normalize","binarize","kmeans"],
                                                               params={"pca__percent_variance":0.95,
                                                               "kmeans__n_clusters":len(categories)},
                                                               verbose=False)
 print(X2)
-print("~~~~~~~~~")
+
 from sklearn.datasets import load_iris
 iris=load_iris()
 X=pd.DataFrame(iris['data'], columns=iris['feature_names'])

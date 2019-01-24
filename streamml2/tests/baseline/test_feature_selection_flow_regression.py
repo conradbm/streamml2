@@ -47,34 +47,29 @@ Feature Selection Models:
 
 import pandas as pd
 import numpy as np
-import os
-import sys
-sys.path.append(os.getcwd()) #I.e., make it a path variable
-sys.path.append(os.path.join(os.getcwd(),"streamml"))
 
-import streamml2_test
-from streamml2_test.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+from streamml2_test.streams import FeatureSelectionStream
+from streamml2_test.streamml2.utils.helpers import *
 from sklearn.datasets import load_boston
+
 boston=load_boston()
 X=pd.DataFrame(boston['data'], columns=boston['feature_names'])
 y=pd.DataFrame(boston['target'],columns=["target"])
 
-return_dict = FeatureSelectionStream(X,y).flow(["mixed_selection", "rfr", "abr", "svr", "enet", "lasso"],
-                                                params={"mixed_selection__threshold_in":0.01,
-                                                        "mixed_selection__threshold_out":0.05,
-                                                        "mixed_selection__verbose":True},
+models=get_feature_selection_regressors()
+example_params=get_feature_selection_params()
+
+return_dict = FeatureSelectionStream(X,y).flow(models,
+                                                params=example_params,
                                                 verbose=True,
                                                 regressors=True,
                                                 ensemble=True,
                                                 featurePercentage=0.5,
                                                 n_jobs=3)
 
-print("Feature data ...")
-print(return_dict['feature_importances'])
-print("Features rankings decision maker...")
-print(return_dict['ensemble_results'])
-print("Reduced data ...")
-print(X[return_dict['kept_features']].head())
+for k in return_dict.keys():
+    print(k)
+    print(return_dict[k])
 
 #print(X.shape)
 #print (y.shape)
