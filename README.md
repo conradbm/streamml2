@@ -76,7 +76,7 @@ Streaming Capabilities provided:
 
 	import pandas as pd
 
-	from streamml2.streamml2.streamline.transformation.flow.TransformationStream import TransformationStream
+	from streamml2.streams import TransformationStream
 
 	from sklearn.datasets import fetch_20newsgroups
 
@@ -113,7 +113,7 @@ Streaming Capabilities provided:
 <h2>Model Selection</h2>
 <code>
 	
-	from streamml2.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+	from streamml2.streams import ModelSelectionStream
 
 	from sklearn.svm import SVR
 
@@ -180,7 +180,7 @@ Streaming Capabilities provided:
 <h2>Feature Selection</h2>
 <code>
 	
-	from streamml2.streamml2.streamline.model_selection.flow.FeatureSelectionStream import FeatureSelectionStream
+	from streamml2.streams import FeatureSelectionStream
 	from sklearn.datasets import load_iris
 	iris=load_iris()
 	X=pd.DataFrame(iris['data'], columns=iris['feature_names'])
@@ -225,9 +225,9 @@ Streaming Capabilities provided:
 <code>
 
 	import pandas as pd
-	from streamml2.streamml2.streamline.transformation.flow.TransformationStream import TransformationStream
-	from streamml2.streamml2.streamline.feature_selection.flow.FeatureSelectionStream import FeatureSelectionStream
-	from streamml2.streamml2.streamline.model_selection.flow.ModelSelectionStream import ModelSelectionStream
+	from streamml2.streams import TransformationStream
+	from streamml2.streams import FeatureSelectionStream
+	from streamml2.streams import ModelSelectionStream
 	from sklearn.svm import SVR
 	from sklearn.ensemble import RandomForestRegressor
 	from sklearn.linear_model import LinearRegression
@@ -298,4 +298,36 @@ Streaming Capabilities provided:
 	    print(k)
 	    print(results_dict[k])
 
+</code>
+
+<h2>More examples</h2>
+
+<code>
+	
+	from streamml2.streams import ModelSelectionStream
+	from streamml2.streams import TransformationStream
+	from streamml2.streams import FeatureSelectionStream
+	from streamml2.streamml2.utils.helpers import *
+
+	X,y=get_classification_dataset()
+	params=get_model_selection_classifiers_params()
+	results_dict=ModelSelectionStream(X,y).flow(["nbc", "logr", "knnc"], 
+						    params=params,
+						    regressors=False)
+						    
+</code>
+
+<code>
+	
+	from streamml2.streams import ModelSelectionStream
+	from streamml2.streams import TransformationStream
+	from streamml2.streams import FeatureSelectionStream
+	from streamml2.streamml2.utils.helpers import *
+
+	X,y=get_regression_dataset()
+	params=get_model_selection_regressors_params()
+	results_dict=ModelSelectionStream(X,y).flow(["lr", "knnr", "abr"], 
+						    params=params,
+						    regressors=True)
+						    
 </code>
