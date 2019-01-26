@@ -5,7 +5,9 @@ from ...AbstractFeatureSelectionModel import AbstractFeatureSelectionModel
 class MixedSelectionFeatureSelectionModel(AbstractFeatureSelectionModel):
 
     def __init__(self, X, y, params, verbose):
-        AbstractFeatureSelectionModel.__init__(self,"plsr", X, y, params, verbose)
+        if verbose:
+            print("Constructed MixedSelectionFeatureSelectionModel")
+        AbstractFeatureSelectionModel.__init__(self,"mixed_selection", X, y, params, verbose)
 
     def execute(self):
 

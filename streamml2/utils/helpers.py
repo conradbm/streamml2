@@ -138,15 +138,24 @@ def get_feature_selection_regressors():
             "abr", 
             "svr", 
             "enet", 
-            "lasso"]
-    
+            "lasso",
+            "lar",
+            "lasso_lar",
+            "tsr",
+            "hr",
+            "lr",
+            "plsr",
+            "dtr"]
+
 """
 Utility for users to quickly get all of the supported classifiers for feature selection.
 """
 def get_feature_selection_classifiers():
     return ["rfc", 
             "abc", 
-            "svc"]
+            "svc",
+            "dtc",
+            "logr"]
 
 def get_feature_selection_params():
     import numpy as np

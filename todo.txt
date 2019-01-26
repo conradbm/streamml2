@@ -6,16 +6,28 @@ from sklearn.linear_model import OrthogonalMatchingPursuit
 reg = OrthogonalMatchingPursuit().fit(X, y)
 reg.coef_
 
-- Add LARS
-lars.coef_
-
-- Add LARSLasso
--larslasso.coef_
-
 - Add LassoLarsIC
 https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLarsIC.html#sklearn.linear_model.LassoLarsIC
 from sklearn.linear_model import LassoLarsIC
-lasslarsic.coef_
+
+- Add NZV (Only keep features with above the given threshold)
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html#sklearn.feature_selection.VarianceThreshold
+fro sklearn.feature_selection import VarianceThreshold
+X = [[0, 2, 0, 3], [0, 1, 4, 3], [0, 1, 1, 3]]
+>>> selector = VarianceThreshold()
+>>> selector.fit_transform(X)
+
+- Add mutual_info_classif
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html#sklearn.feature_selection.mutual_info_classif
+
+- Add f_classif statistic
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_classif.html#sklearn.feature_selection.f_classif
+
+- Add mutual_info_regression
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html#sklearn.feature_selection.mutual_info_classif
+
+- Add f_regression statistic
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_regression.html#sklearn.feature_selection.f_regression
 
 Model Selection
 - Add OMP

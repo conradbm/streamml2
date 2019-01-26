@@ -60,7 +60,7 @@ models=get_feature_selection_regressors()
 example_params=get_feature_selection_params()
 
 return_dict = FeatureSelectionStream(X,y).flow(models,
-                                                params=example_params,
+                                                params={},
                                                 verbose=True,
                                                 regressors=True,
                                                 ensemble=True,

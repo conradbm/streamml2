@@ -31,11 +31,19 @@ from ...model_selection.models.regressors.LassoRegressorPredictiveModel import L
 from ...model_selection.models.regressors.ElasticNetRegressorPredictiveModel import ElasticNetRegressorPredictiveModel
 from ...model_selection.models.regressors.RandomForestRegressorPredictiveModel import RandomForestRegressorPredictiveModel
 from ...model_selection.models.regressors.AdaptiveBoostingRegressorPredictiveModel import AdaptiveBoostingRegressorPredictiveModel
+from ...model_selection.models.regressors.LassoLeastAngleRegressorPredictiveModel import LassoLeastAngleRegressorPredictiveModel
+from ...model_selection.models.regressors.LeastAngleRegressorPredictiveModel import LeastAngleRegressorPredictiveModel
+from ...model_selection.models.regressors.TheilSenRegressorPredictiveModel import TheilSenRegressorPredictiveModel
+from ...model_selection.models.regressors.HuberRegressorPredictiveModel import HuberRegressorPredictiveModel
+from ...model_selection.models.regressors.DecisionTreeRegressorPredictiveModel import DecisionTreeRegressorPredictiveModel
+from ...model_selection.models.regressors.LinearRegressorPredictiveModel import LinearRegressorPredictiveModel
 
 # Classifiers
 from ...model_selection.models.classifiers.AdaptiveBoostingClassifierPredictiveModel import AdaptiveBoostingClassifierPredictiveModel
 from ...model_selection.models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
 from ...model_selection.models.classifiers.SupportVectorClassifierPredictiveModel import SupportVectorClassifierPredictiveModel
+from ...model_selection.models.classifiers.DecisionTreeClassifierPredictiveModel import DecisionTreeClassifierPredictiveModel
+
             
 # MADM
 from .MADMFeatureSelection import MADMFeatureSelection
@@ -210,7 +218,25 @@ class FeatureSelectionStream:
                                                            n_iter=self._n_iter,
                                                           verbose=self._verbose)
             return abs(model.getBestEstimator().coef_.flatten())
+        
+        def linearRegression():
             
+            self._lr_params={}
+            for k,v in self._allParams.items():
+                if "lr" == k.split("__")[0]:
+                    self._lr_params[k]=v
+
+                
+            model = LinearRegressorPredictiveModel(self._X_train, 
+                                                   self._y_train,
+                                                   self._lr_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            return abs(model.getBestEstimator().coef_.flatten())
+        
         def elasticNetRegression():
             self._enet_params={}
             for k,v in self._allParams.items():
@@ -238,6 +264,89 @@ class FeatureSelectionStream:
             plsrModel = PLSRegressorFeatureSelectionModel(self._X, self._y, self._allParams, self._verbose)
             abs_coefs = plsrModel.execute()
             return abs_coefs
+        
+        def lassoLeastAngleRegression():
+            self._lasso_lar_params={}
+            for k,v in self._allParams.items():
+                if "lasso_lar" == k.split("__")[0]:
+                    self._lasso_lar_params[k]=v
+
+            model = LassoLeastAngleRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._lasso_lar_params,
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
+            return abs(model.getBestEstimator().coef_.flatten())
+            
+        def leastAngleRegression():
+            self._lar_params={}
+            for k,v in self._allParams.items():
+                if "lar" == k.split("__")[0]:
+                    self._lar_params[k]=v
+
+            model = LeastAngleRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._lar_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            
+            return abs(model.getBestEstimator().coef_.flatten())
+        
+        def theilSenRegression():
+            self._tsr_params={}
+            for k,v in self._allParams.items():
+                if "tsr" == k.split("__")[0]:
+                    self._tsr_params[k]=v
+
+            model = TheilSenRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._tsr_params,
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
+            return abs(model.getBestEstimator().coef_.flatten())
+
+        
+        def huberRegression():
+            self._hr_params={}
+            for k,v in self._allParams.items():
+                if "hr" == k.split("__")[0]:
+                    self._hr_params[k]=v
+
+            model = HuberRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._hr_params,
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
+            return abs(model.getBestEstimator().coef_.flatten())
+        
+        
+        def decisionTreeRegression():
+            self._dtr_params={}
+            for k,v in self._allParams.items():
+                if "dtr" == k.split("__")[0]:
+                    self._dtr_params[k]=v
+
+            model = DecisionTreeRegressorPredictiveModel(self._X_train, 
+                                                          self._y_train,
+                                                          self._dtr_params,
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
+            return model.getBestEstimator().feature_importances_.flatten()
         
         ############################################
         ########## Classifiers Start Here ##########
@@ -277,7 +386,23 @@ class FeatureSelectionStream:
                                                           verbose=self._verbose)
             return model.getBestEstimator().feature_importances_.flatten()
         
-        
+        def decisionTreeClassifier():
+            self._dtc_params={}
+            for k,v in self._allParams.items():
+                if "dtc" == k.split("__")[0]:
+                    self._dtc_params[k]=v
+
+                
+            model = RandomForestClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._dtc_params,
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
+            return model.getBestEstimator().feature_importances_.flatten()
+
         def supportVectorClassifier():
             self._svc_params={}
             for k,v in self._allParams.items():
@@ -301,6 +426,23 @@ class FeatureSelectionStream:
               prods = np.multiply(prods, coefs[i,:])
             return abs(prods)
         
+        def logisticRegressionClassifier():
+            self._logr_params={}
+            for k,v in self._allParams.items():
+                if "logr" == k.split("__")[0]:
+                    self._logr_params[k]=v
+
+                
+            model = LogisticRegressionClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._logr_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            return abs(model.coef_.flatten())
+        
         # Valid regressors
         regression_options = {"mixed_selection" : mixed_selection,
                                "svr" : supportVectorRegression,
@@ -308,14 +450,21 @@ class FeatureSelectionStream:
                                "abr":adaptiveBoostingRegression,
                                "lasso":lassoRegression,
                                "enet":elasticNetRegression,
-                               "plsr":partialLeastSquaresRegression}
-
+                               "plsr":partialLeastSquaresRegression,
+                               "lar":leastAngleRegression,
+                                "lasso_lar":lassoLeastAngleRegression,
+                                "tsr":theilSenRegression,
+                                "hr":huberRegression,
+                                "lr":linearRegression,
+                                "dtr":decisionTreeRegression}
 
 
         # Valid classifiers
         classification_options = {'abc':adaptiveBoostingClassifier,
                                     'rfc':randomForestClassifier,
-                                    'svc':supportVectorClassifier
+                                    'svc':supportVectorClassifier,
+                                    'dtc':decisionTreeClassifier,
+                                    'logr':logisticRegressionClassifier
                                  }
         
         # Define return dictionary

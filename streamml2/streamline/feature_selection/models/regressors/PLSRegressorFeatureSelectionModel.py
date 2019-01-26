@@ -4,6 +4,8 @@ class PLSRegressorFeatureSelectionModel(AbstractFeatureSelectionModel):
 
     
     def __init__(self, X, y, params, verbose):
+        if verbose:
+            print("Constructed PLSRegressionFeatureSelectionModel")
         AbstractFeatureSelectionModel.__init__(self,"plsr", X, y, params, verbose)
 
     def execute(self):
