@@ -36,6 +36,9 @@ reg = RANSACRegressor(random_state=0).fit(X, y)
 - Add Perceptron
 https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Perceptron.html#sklearn.linear_model.Perceptron
 
+- Add BaggingClassifier
+https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html#sklearn.ensemble.BaggingClassifier
+
 Transformation
 
 - Add PolynomialFeatures
