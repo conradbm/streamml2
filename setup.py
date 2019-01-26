@@ -10,14 +10,14 @@ from distutils.core import setup
 setup(
   name = 'streamml2',         # How you named your package folder (MyLib)
   packages = ['streamml2'],   # Chose the same as "name"
-  version = '0.04',      # Start with a small number and increase it with every change you make
+  version = '0.05',      # Start with a small number and increase it with every change you make
   license='MIT',        # Chose a license from here: https://help.github.com/articles/licensing-a-repository
   description = 'Streamlined machine learning for transformation, feature selection, and model selection.',   # Give a short description about your library
   author = 'Blake Conrad',                   # Type in your name
   author_email = 'bmc.cs@outlook.com',      # Type in your E-Mail
   url = 'https://github.com/conradbm/streamml2',   # Provide either the link to your github or to your website
-  download_url = 'https://github.com/conradbm/streamml2/archive/v_04.tar.gz',    # I explain this later on
-  keywords = ['Machine Learning', 'Model Selection', 'Transformation', "Feature Selection", "Statistical Significance","t-Distribution","Grid Search", "Random Search", "Regression", "Classification"],   # Keywords that define your package best
+  download_url = 'https://github.com/conradbm/streamml2/archive/v_05.tar.gz',    # I explain this later on
+  keywords = ['Machine Learning',"Statistical Learning", 'Model Selection', 'Transformation', "Feature Selection", "Statistical Significance","t-Distribution","K-Fold Cross Validation","Stratified K-Fold Cross Validation","Hyper-Parameter Tuning", "Parameter Tuning","Grid Search", "Random Search", "Metrics" ,"Regression", "Classification","Deep Learning", "Multi-Attribute Decision Making","Decision Making", "TOPSIS", "SAW", "Simple Additive Weighting","Pipeline", "Workflow"],   # Keywords that define your package best
   install_requires=[            # I get to this in a second
           'pandas',
           'numpy',
