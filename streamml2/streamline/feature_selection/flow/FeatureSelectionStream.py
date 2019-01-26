@@ -151,11 +151,11 @@ class FeatureSelectionStream:
             model = SupportVectorRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._svr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
             return abs(model.getBestEstimator().coef_.flatten())
         
         def randomForestRegression():
@@ -168,11 +168,11 @@ class FeatureSelectionStream:
             model = RandomForestRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._rfr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
             return abs(model.getBestEstimator().feature_importances_.flatten())
             
         
@@ -187,11 +187,11 @@ class FeatureSelectionStream:
             model = AdaptiveBoostingRegressorPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._abr_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
             return abs(model.getBestEstimator().feature_importances_.flatten())
         
         def lassoRegression():
@@ -204,11 +204,11 @@ class FeatureSelectionStream:
             model = LassoRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._lasso_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
             return abs(model.getBestEstimator().coef_.flatten())
             
         def elasticNetRegression():
@@ -220,11 +220,11 @@ class FeatureSelectionStream:
             model = ElasticNetRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._enet_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
             return abs(model.getBestEstimator().coef_.flatten())
     
         def mixed_selection():
@@ -253,11 +253,11 @@ class FeatureSelectionStream:
             model = AdaptiveBoostingClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._abc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
             return model.getBestEstimator().feature_importances_.flatten()
         
         def randomForestClassifier():
@@ -270,11 +270,11 @@ class FeatureSelectionStream:
             model = RandomForestClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._rfc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
             return model.getBestEstimator().feature_importances_.flatten()
         
         
@@ -289,11 +289,11 @@ class FeatureSelectionStream:
             model = SupportVectorClassifierPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._svc_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                          nfolds=self._nfolds, 
+                                                          n_jobs=self._n_jobs,
+                                                           random_grid=self._random_grid,
+                                                           n_iter=self._n_iter,
+                                                          verbose=self._verbose)
 
             coefs=model.getBestEstimator().coef_
             prods=coefs[0,:]
