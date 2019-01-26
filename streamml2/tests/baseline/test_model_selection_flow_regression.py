@@ -45,18 +45,13 @@ models=get_model_selection_regressors()
 params=get_model_selection_regressors_params()
 results_dict = ModelSelectionStream(X,y).flow(models,
                                                 params=params,
-                                                metrics=[],
-                                                test_size=0.33,
-                                                nfolds=10,
-                                                nrepeats=3,
-                                                verbose=True, 
                                                 regressors=True,
-                                                stratified=False,
-                                                stats=False,
-                                                modelSelection=False,
-                                                random_grid=False,
-                                                n_iter=10,
-                                                n_jobs=3)
+                                                nfolds=3,
+                                                nrepeats=3,
+                                                n_jobs=3,
+                                                random_grid=True,
+                                                n_iter=2,
+                                                model_selection=True)
 
 for k in results_dict.keys():
     print(k)

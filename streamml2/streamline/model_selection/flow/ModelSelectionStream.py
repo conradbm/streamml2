@@ -89,7 +89,7 @@ class ModelSelectionStream:
     _regressors_results=None
     _classifier_results_list=None
     _classifiers_results=None
-    _modelSelection=None
+    _model_selection=None
     _stratified=None
     _metrics_significance_dict=None
     _random_grid=None
@@ -132,7 +132,7 @@ class ModelSelectionStream:
         if self._verbose:
             print(df_results)
         
-        df_results.plot(title='Error(s) - Train set against test set - Full dataset')
+        df_results.plot(title='Error(s) - Train Size:'+str(1-self._test_size) + ' Test Size: ' + str(self._test_size))
         plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
         locs, labels = plt.xticks()
         plt.setp(labels, rotation=45)
@@ -248,12 +248,11 @@ class ModelSelectionStream:
         
         if self._verbose:
             print(df_results)
-        
-        df_results.plot(title='Error(s) - Regressor(s)')
-        plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
-        locs, labels = plt.xticks()
-        plt.setp(labels, rotation=45)
-        plt.show()
+            df_results.plot(title='Error(s) - Regressor(s) - Average '+str(self._nfolds)+'-Fold CV')
+            plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+            locs, labels = plt.xticks()
+            plt.setp(labels, rotation=45)
+            plt.show()
         
 
         
@@ -278,6 +277,8 @@ class ModelSelectionStream:
                 df.index=list(self._regressors_results.keys())
                 df.columns=list(self._regressors_results.keys())
                 self._metrics_significance_dict[m]=df
+                if self._verbose:
+                    print(self._metrics_significance_dict[m])
             return_dict["significance"]=self._metrics_significance_dict
         # plot models against one another in charts
         
@@ -356,12 +357,11 @@ class ModelSelectionStream:
         
         if self._verbose:
             print(df_results)
-        
-        df_results.plot(title='Error(s) - Classifier(s)')
-        plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
-        locs, labels = plt.xticks()
-        plt.setp(labels, rotation=45)
-        plt.show()
+            df_results.plot(title='Error(s) - Classifiers(s) - Average '+str(self._nfolds)+'-Fold CV')
+            plt.xticks(range(len(df_results.index.tolist())), df_results.index.tolist())
+            locs, labels = plt.xticks()
+            plt.setp(labels, rotation=45)
+            plt.show()
         # plot models against one another in charts
         
         if self._stats:
@@ -389,6 +389,8 @@ class ModelSelectionStream:
                 df.index=list(self._classifier_results.keys())
                 df.columns=list(self._classifier_results.keys())
                 self._metrics_significance_dict[m]=df
+                if self._verbose:
+                    print(self._metrics_significance_dict[m])
             return_dict["significance"]=self._metrics_significance_dict
             # plot models against one another in charts
         
@@ -405,7 +407,7 @@ class ModelSelectionStream:
                   
     """
     def flow(self, 
-             models_to_flow=[], 
+             models_to_flow,
              params={}, 
              test_size=0.3, 
              nfolds=3,
@@ -414,13 +416,15 @@ class ModelSelectionStream:
              stratified=False,
              n_jobs=1, 
              metrics=[], 
-             verbose=False, 
+             verbose=True, 
              regressors=True,
-             modelSelection=True,
+             model_selection=True,
              cut=None,
              random_grid=False,
              n_iter=10):
       
+        assert isinstance(models_to_flow, list) or isinstance(models_to_flow, tuple), "Your models to flow must be a list or tuple."
+        assert len(models_to_flow)>0, "You mus thave at least one model to flow, calculated len(models_to_flow)="+str(len(models_to_flow))
         assert isinstance(nfolds, int), "nfolds must be integer"
         assert isinstance(nrepeats, int), "nrepeats must be integer"
         assert isinstance(n_jobs, int), "n_jobs must be integer"
@@ -429,7 +433,7 @@ class ModelSelectionStream:
         assert isinstance(test_size, float), "test_size must be a float"
         assert isinstance(metrics, list), "model scoring must be a list"
         assert isinstance(regressors, bool), "regressor must be bool"
-        assert isinstance(modelSelection, bool), "modelSelection must be bool"
+        assert isinstance(model_selection, bool), "modelSelection must be bool"
         assert isinstance(stratified, bool), "modelSelection must be bool"
         assert isinstance(stats, bool), "stats must be bool"
         assert isinstance(random_grid, bool), "random_grid must be bool"
@@ -443,7 +447,7 @@ class ModelSelectionStream:
         self._metrics=metrics
         self._test_size=test_size
         self._regressors=regressors
-        self._modelSelection=modelSelection
+        self._model_selection=model_selection
         self._cut = cut
         self._stratified=stratified
         self._stats=stats
@@ -485,11 +489,11 @@ class ModelSelectionStream:
             model = LinearRegressorPredictiveModel(self._X_train, 
                                                    self._y_train,
                                                    self._lr_params,
-                                                   self._nfolds, 
-                                                   self._n_jobs,
-                                                   self._random_grid,
-                                                   self._n_iter,
-                                                   self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
             
         def supportVectorRegression():
@@ -502,11 +506,11 @@ class ModelSelectionStream:
             model = SupportVectorRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._svr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
             
         
@@ -520,11 +524,11 @@ class ModelSelectionStream:
             model = RandomForestRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._rfr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
             
         
@@ -540,11 +544,11 @@ class ModelSelectionStream:
             model = AdaptiveBoostingRegressorPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._abr_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def knnRegression():
@@ -558,11 +562,11 @@ class ModelSelectionStream:
             model = KNNRegressorPredictiveModel(self._X_train, 
                                                 self._y_train,
                                                 self._knnr_params,
-                                                self._nfolds, 
-                                                self._n_jobs,
-                                                   self._random_grid,
-                                                   self._n_iter,
-                                                self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
             
@@ -576,11 +580,11 @@ class ModelSelectionStream:
             model = RidgeRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._ridge_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
             
         
@@ -594,11 +598,11 @@ class ModelSelectionStream:
             model = LassoRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._lasso_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
             
         
@@ -611,11 +615,11 @@ class ModelSelectionStream:
             model = ElasticNetRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._enet_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
             
         def multilayerPerceptronRegression():
@@ -627,11 +631,11 @@ class ModelSelectionStream:
             model = MultilayerPerceptronRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._mlpr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -645,11 +649,11 @@ class ModelSelectionStream:
             model = LeastAngleRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._lar_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -663,11 +667,11 @@ class ModelSelectionStream:
             model = LassoLeastAngleRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._lasso_lar_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -681,11 +685,11 @@ class ModelSelectionStream:
             model = BayesianRidgeRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._bays_ridge,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -698,11 +702,11 @@ class ModelSelectionStream:
             model = ARDRegressorPredictiveModel(self._X_train, 
                                                 self._y_train,
                                                 self._ardr_params,
-                                                self._nfolds, 
-                                                self._n_jobs,
-                                                   self._random_grid,
-                                                   self._n_iter,
-                                                self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -715,11 +719,11 @@ class ModelSelectionStream:
             model = PassiveAggressiveRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._par_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -732,11 +736,11 @@ class ModelSelectionStream:
             model = TheilSenRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._tsr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -749,11 +753,11 @@ class ModelSelectionStream:
             model = HuberRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._hr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -766,11 +770,11 @@ class ModelSelectionStream:
             model = GaussianProcessRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._gpr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -783,11 +787,11 @@ class ModelSelectionStream:
             model = GradientBoostingRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._gbr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -800,11 +804,11 @@ class ModelSelectionStream:
             model = BaggingRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._br_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
         
@@ -817,11 +821,11 @@ class ModelSelectionStream:
             model = DecisionTreeRegressorPredictiveModel(self._X_train, 
                                                           self._y_train,
                                                           self._dtr_params,
-                                                          self._nfolds, 
-                                                          self._n_jobs,
-                                                           self._random_grid,
-                                                           self._n_iter,
-                                                          self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             
             return model
 
@@ -839,11 +843,11 @@ class ModelSelectionStream:
             model = AdaptiveBoostingClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._abc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
 
@@ -857,11 +861,11 @@ class ModelSelectionStream:
             model = DecisionTreeClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._dtc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         
@@ -875,11 +879,11 @@ class ModelSelectionStream:
             model = GradientBoostingClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._gbc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def guassianProcessClassifier():
@@ -892,11 +896,11 @@ class ModelSelectionStream:
             model = GuassianProcessClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._gpc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
 
@@ -910,11 +914,11 @@ class ModelSelectionStream:
             model = KNNClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._knnc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def logisticRegressionClassifier():
@@ -927,11 +931,11 @@ class ModelSelectionStream:
             model = LogisticRegressionClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._logr_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def multilayerPerceptronClassifier():
@@ -944,11 +948,11 @@ class ModelSelectionStream:
             model = MultilayerPerceptronClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._mlpc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def naiveBayesClassifier():
@@ -961,11 +965,11 @@ class ModelSelectionStream:
             model = NaiveBayesClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._nbc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def randomForestClassifier():
@@ -978,11 +982,11 @@ class ModelSelectionStream:
             model = RandomForestClassifierPredictiveModel(self._X_train, 
                                                               self._y_train,
                                                               self._rfc_params,
-                                                              self._nfolds, 
-                                                              self._n_jobs,
-                                                               self._random_grid,
-                                                               self._n_iter,
-                                                              self._verbose)
+                                                    nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def stochasticGradientDescentClassifier():
@@ -995,11 +999,11 @@ class ModelSelectionStream:
             model = StochasticGradientDescentClassifierPredictiveModel(self._X_train, 
                                                                       self._y_train,
                                                                       self._sgdc_params,
-                                                                      self._nfolds, 
-                                                                      self._n_jobs,
-                                                                       self._random_grid,
-                                                                       self._n_iter,
-                                                                      self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         def supportVectorClassifier():
@@ -1012,11 +1016,11 @@ class ModelSelectionStream:
             model = SupportVectorClassifierPredictiveModel(self._X_train, 
                                                                       self._y_train,
                                                                       self._svc_params,
-                                                                      self._nfolds, 
-                                                                      self._n_jobs,
-                                                                       self._random_grid,
-                                                                       self._n_iter,
-                                                                      self._verbose)
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
             return model
         
         # Valid regressors
@@ -1081,7 +1085,7 @@ class ModelSelectionStream:
         self._bestEstimators = self.determineBestEstimators(self._wrapper_models)
 		
         # Do you want 1 or many models returned? If verbose, a visual appears.
-        if self._modelSelection:
+        if self._model_selection:
             assert(len(self._wrapper_models) > 1, "In order to compare models, you must have more than one. Add some in the first argument of `flow(...)` and retry.")
             if not len(self._metrics) > 0:
                 if self._regressors:
@@ -1103,9 +1107,9 @@ class ModelSelectionStream:
                                      #"log_loss" # not working with splits right now
                                     ]
             
-            # Get final results from actual train test dataset
-            self._final_results = self.getActualErrorOnTest(self._metrics,self._wrapper_models)
+
             
+            # Get K-Fold errors
             if self._regressors:
                 return_dict = self.handleRegressors(self._X_train, 
                                                       self._y_train, 
@@ -1122,6 +1126,10 @@ class ModelSelectionStream:
             else:
                 print("You selected an invalid type of model.")
                 print
+            
+            
+            # Get Final errors
+            self._final_results = self.getActualErrorOnTest(self._metrics,self._wrapper_models)
             
             return_dict["final_errors"]=self._final_results
         return_dict["models"]=self._bestEstimators

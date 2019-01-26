@@ -96,7 +96,7 @@ class AbstractRegressorPredictiveModel(AbstractPredictiveModel):
                                             n_iter=self._n_iter,
                                             verbose=False)
         
-        self._model = self._grid.fit(self._X,self._y).best_estimator_.named_steps[self._code]
+        self._model = self._grid.fit(self._X, self._y).best_estimator_.named_steps[self._code]
         return self._model    
     
     def getValidationResults(self):
