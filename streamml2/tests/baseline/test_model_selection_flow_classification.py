@@ -42,8 +42,9 @@ y=pd.DataFrame(iris['target'], columns=['target'])
 X2=TransformationStream(X).flow(["scale","normalize"])
 models=get_model_selection_classifiers()
 params=get_model_selection_classifiers_params()
-results_dict = ModelSelectionStream(X2,y).flow(["abc","gbc"],
-                                                params=params,
+print(models)
+results_dict = ModelSelectionStream(X2,y).flow(models,
+                                                params={},
                                                 regressors=False,
                                                 verbose=True)
 

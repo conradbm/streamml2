@@ -61,7 +61,10 @@ def get_model_selection_regressors():
              'ard',
              'bays_ridge',
              'lasso_lar',
-             'lar']
+             'lar',
+             'ransacr',
+             'ompr',
+             'lasso_lar_ic']
     
 """
 Utility for users to quickly get all of the supported classifiers for model selection.
@@ -77,7 +80,9 @@ def get_model_selection_classifiers():
              'nbc',
              'rfc',
              'sgd',
-             'svc']
+             'svc',
+             'pc',
+             'bc']
     
 """
 Utility for users to quickly get a parameter grid to start working off of for regressors.

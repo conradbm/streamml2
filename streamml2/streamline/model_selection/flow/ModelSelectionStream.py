@@ -42,6 +42,9 @@ from ..models.regressors.GaussianProcessRegressorPredictiveModel import Gaussian
 from ..models.regressors.GradientBoostingRegressorPredictiveModel import GradientBoostingRegressorPredictiveModel
 from ..models.regressors.BaggingRegressorPredictiveModel import BaggingRegressorPredictiveModel
 from ..models.regressors.DecisionTreeRegressorPredictiveModel import DecisionTreeRegressorPredictiveModel
+from ..models.regressors.LassoLarICRegressorPredictiveModel import LassoLarICRegressorPredictiveModel
+from ..models.regressors.OrthogonalMatchingPursuitRegressorPredictiveModel import OrthogonalMatchingPursuitRegressorPredictiveModel
+from ..models.regressors.RANSACRegressorPredictiveModel import RANSACRegressorPredictiveModel
 
 # Classifiers
 from ..models.classifiers.AdaptiveBoostingClassifierPredictiveModel import AdaptiveBoostingClassifierPredictiveModel
@@ -55,6 +58,8 @@ from ..models.classifiers.NaiveBayesClassifierPredictiveModel import NaiveBayesC
 from ..models.classifiers.RandomForestClassifierPredictiveModel import RandomForestClassifierPredictiveModel
 from ..models.classifiers.StochasticGradientDescentClassifierPredictiveModel import StochasticGradientDescentClassifierPredictiveModel
 from ..models.classifiers.SupportVectorClassifierPredictiveModel  import SupportVectorClassifierPredictiveModel 
+from ..models.classifiers.PerceptronClassifierPredictiveModel  import PerceptronClassifierPredictiveModel 
+from ..models.classifiers.BaggingClassifierPredictiveModel  import BaggingClassifierPredictiveModel 
 
 #Utils
 from ....utils.helpers import listofdict2dictoflist
@@ -477,7 +482,62 @@ class ModelSelectionStream:
         ###########################################
         ########## Regressors Start Here ##########
         ###########################################
+
         
+        def lassoLeastAngleICRegression():
+            
+            self._lasso_lar_ic_params={}
+            for k,v in self._allParams.items():
+                if "lasso_lar_ic" == k.split("__")[0]:
+                    self._lasso_lar_ic_params[k]=v
+
+                
+            model = LassoLarICRegressorPredictiveModel(self._X_train, 
+                                                   self._y_train,
+                                                   self._lasso_lar_ic_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            return model
+        
+        def orthogonalMatchingPursuitRegression():
+            
+            self._ompr_params={}
+            for k,v in self._allParams.items():
+                if "ompr" == k.split("__")[0]:
+                    self._lr_params[k]=v
+
+                
+            model = OrthogonalMatchingPursuitRegressorPredictiveModel(self._X_train, 
+                                                   self._y_train,
+                                                   self._ompr_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            return model
+        
+        def ransacRegression():
+            
+            self._ransacr_params={}
+            for k,v in self._allParams.items():
+                if "ransacr" == k.split("__")[0]:
+                    self._lr_params[k]=v
+
+                
+            model = RANSACRegressorPredictiveModel(self._X_train, 
+                                                   self._y_train,
+                                                   self._ransacr_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            return model
+
         def linearRegression():
             
             self._lr_params={}
@@ -849,8 +909,41 @@ class ModelSelectionStream:
                                                    n_iter=self._n_iter,
                                                    verbose=self._verbose)
             return model
-        
 
+
+        def perceptronClassifier():
+            self._pc_params={}
+            for k,v in self._allParams.items():
+                if "pc" == k.split("__")[0]:
+                    self._dtc_params[k]=v
+
+                
+            model = PerceptronClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._pc_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            return model
+        
+        def baggingClassifier():
+            self._bc_params={}
+            for k,v in self._allParams.items():
+                if "bc" == k.split("__")[0]:
+                    self._dtc_params[k]=v
+
+                
+            model = BaggingClassifierPredictiveModel(self._X_train, 
+                                                              self._y_train,
+                                                              self._bc_params,
+                                                   nfolds=self._nfolds, 
+                                                   n_jobs=self._n_jobs,
+                                                   random_grid=self._random_grid,
+                                                   n_iter=self._n_iter,
+                                                   verbose=self._verbose)
+            return model
         def decisionTreeClassifier():
             self._dtc_params={}
             for k,v in self._allParams.items():
@@ -1043,7 +1136,11 @@ class ModelSelectionStream:
                                "ard":ardRegression,
                                "bays_ridge":bayesianRidgeRegression,
                                "lasso_lar":lassoLeastAngleRegression,
-                               "lar":leastAngleRegression}
+                               "lar":leastAngleRegression,
+                               'ompr':orthogonalMatchingPursuitRegression,
+                                'ransacr':ransacRegression,
+                                'lasso_lar_ic':lassoLeastAngleICRegression}
+
 
 
 
@@ -1058,7 +1155,9 @@ class ModelSelectionStream:
                                     'nbc':naiveBayesClassifier,
                                     'rfc':randomForestClassifier,
                                     'sgd':stochasticGradientDescentClassifier,
-                                    'svc':supportVectorClassifier}
+                                    'svc':supportVectorClassifier,
+                                    'pc':perceptronClassifier,
+                                    'bc':baggingClassifier}
         
 		# Train test split
         self._X_train, self._X_test, self._y_train, self._y_test = train_test_split(self._X,

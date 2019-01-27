@@ -43,6 +43,7 @@ y=pd.DataFrame(boston['target'],columns=["target"])
 
 models=get_model_selection_regressors()
 params=get_model_selection_regressors_params()
+print(models)
 results_dict = ModelSelectionStream(X,y).flow(models,
                                                 params=params,
                                                 regressors=True,
