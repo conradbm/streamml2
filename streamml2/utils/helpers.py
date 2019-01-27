@@ -211,14 +211,16 @@ def get_transformer_models():
             'pca',
             'kmeans',
             'brbm', 
-            'tsne']
+            'tsne',
+            "poly"]
 
 def get_transformer_params():
     return {"kmeans__n_clusters":5,
             "pca__percent_variance":0.9,
             "pca__n_components":2,
             "tsne__n_components":2,
-            "binarize":1,
-            "brbm_n_components":256}
-
+            "binarize__threshold":1,
+            "brbm__n_components":256,
+            "poly__degree":3,
+            "poly_only_interaction":True}
 

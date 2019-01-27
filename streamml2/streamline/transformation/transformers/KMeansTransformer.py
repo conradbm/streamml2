@@ -5,7 +5,7 @@ class KMeansTransformer(AbstractTransformer):
     
     def __init__(self, nclusters):
         self._n_clusters = nclusters
-        AbstractTransformer.__init__(self, "scale")
+        AbstractTransformer.__init__(self, "kmeans")
         
     # More parameters can be found here: 
     # http://scikit-learn.org/stable/modules/preprocessing.html

@@ -5,7 +5,7 @@ class BinarizeTransformer(AbstractTransformer):
     
     def __init__(self, threshold):
         self._threshold=threshold
-        AbstractTransformer.__init__(self, "scale")
+        AbstractTransformer.__init__(self, "binarize")
         
     # More parameters can be found here: 
     # http://scikit-learn.org/stable/modules/preprocessing.html

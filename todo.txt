@@ -10,13 +10,6 @@ reg.coef_
 https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLarsIC.html#sklearn.linear_model.LassoLarsIC
 from sklearn.linear_model import LassoLarsIC
 
-- Add NZV (Only keep features with above the given threshold)
-https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html#sklearn.feature_selection.VarianceThreshold
-fro sklearn.feature_selection import VarianceThreshold
-X = [[0, 2, 0, 3], [0, 1, 4, 3], [0, 1, 1, 3]]
->>> selector = VarianceThreshold()
->>> selector.fit_transform(X)
-
 - Add mutual_info_classif
 https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutual_info_classif.html#sklearn.feature_selection.mutual_info_classif
 
@@ -28,28 +21,6 @@ https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.mutu
 
 - Add f_regression statistic
 https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.f_regression.html#sklearn.feature_selection.f_regression
-
-Model Selection
-- Add OMP
-https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.OrthogonalMatchingPursuit.html#sklearn.linear_model.OrthogonalMatchingPursuit
-from sklearn.linear_model import OrthogonalMatchingPursuit
-reg = OrthogonalMatchingPursuit().fit(X, y)
-
-- Add LassoLarsIC
-https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LassoLarsIC.html#sklearn.linear_model.LassoLarsIC
-from sklearn.linear_model import LassoLarsIC
-reg = linear_model.LassoLarsIC(criterion='bic').fit(X,y)
-
-- Add RANSAC
-https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.RANSACRegressor.html#sklearn.linear_model.RANSACRegressor
-from sklearn.linear_model import RANSACRegressor
-reg = RANSACRegressor(random_state=0).fit(X, y)
-
-- Add Perceptron
-https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.Perceptron.html#sklearn.linear_model.Perceptron
-
-- Add BaggingClassifier
-https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.BaggingClassifier.html#sklearn.ensemble.BaggingClassifier
 
 Transformation
 
@@ -68,3 +39,10 @@ dat = MinMaxScaler().transform(X)
 https://scikit-learn.org/stable/modules/generated/sklearn.preprocessing.MaxAbsScaler.html#sklearn.preprocessing.MaxAbsScaler
 from sklearn.preprocessing import MaxAbsScaler
 transformer = MaxAbsScaler().fit(X).transform(X)
+
+- Add NZV (Only keep features with above the given threshold)
+https://scikit-learn.org/stable/modules/generated/sklearn.feature_selection.VarianceThreshold.html#sklearn.feature_selection.VarianceThreshold
+fro sklearn.feature_selection import VarianceThreshold
+X = [[0, 2, 0, 3], [0, 1, 4, 3], [0, 1, 1, 3]]
+>>> selector = VarianceThreshold()
+>>> selector.fit_transform(X)

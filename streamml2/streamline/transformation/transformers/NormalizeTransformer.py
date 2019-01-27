@@ -4,7 +4,7 @@ from sklearn.preprocessing import normalize
 class NormalizeTransformer(AbstractTransformer):
     
     def __init__(self):
-        AbstractTransformer.__init__(self, "scale")
+        AbstractTransformer.__init__(self, "normalize")
         
     # More parameters can be found here: 
     # http://scikit-learn.org/stable/modules/preprocessing.html

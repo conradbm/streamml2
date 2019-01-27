@@ -9,7 +9,7 @@ class PCATransformer(AbstractTransformer):
         # n_components are captured here, but not used in the transform function
         self._n_components = n_comps
         self._verbose = verbose
-        AbstractTransformer.__init__(self, "scale")
+        AbstractTransformer.__init__(self, "pca")
         
     # More parameters can be found here: 
     # http://scikit-learn.org/stable/modules/preprocessing.html

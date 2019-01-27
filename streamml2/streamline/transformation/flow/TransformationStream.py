@@ -14,6 +14,7 @@ from ..transformers.TSNETransformer import TSNETransformer
 from ..transformers.NormalizeTransformer import NormalizeTransformer
 from ..transformers.PCATransformer import PCATransformer
 from ..transformers.BoxcoxTransformer import BoxcoxTransformer
+from ..transformers.PolynomialTransformer import PolynomialTransformer
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.feature_extraction.text import CountVectorizer
@@ -72,7 +73,6 @@ class TransformationStream:
                 tmp=self._vectorizer.fit_transform(df)
                 self._X=pd.DataFrame(tmp.todense(), columns=self._vocabulary)
             elif method == 'hash':
-
                 tmp=HashingVectorizer(n_features=n_features).fit_transform(df)
                 self._X=pd.DataFrame(tmp.todense())
             else:
@@ -100,7 +100,7 @@ class TransformationStream:
                     
                     
     """
-    def flow(self, preproc_args=[], params=None, verbose=False):
+    def flow(self, preproc_args=[], params={}, verbose=False):
         
         # Assert correct formatting
         assert isinstance(self._X, pd.DataFrame), "data must be a pandas DataFrame."
@@ -160,10 +160,25 @@ class TransformationStream:
             if "brbm__n_components" in params.keys():
                 assert isinstance(params["brbm__n_components"], int), "n_components must be integer."
                 self._n_components = params["brbm__n_components"]
-            elif "brbm__learning_rate" in params.keys():
+            else:
+                self._n_components=256
+            if "brbm__learning_rate" in params.keys():
                 assert isinstance(params["brbm__learning_rate"], float), "learning_rate must be a float"
                 self._learning_rate = params["brbm__learning_rate"]
+            else:
+                  self._learning_rate=0.01
         
+        if "poly" in preproc_args:
+            if "poly__degree" in params.keys():
+                assert isinstance(params["poly__degree"], int), "degree must be int."
+                self._degree = params["poly__degree"]
+            else:
+                self._degree=2
+            if "poly__interaction_only" in params.keys():
+                assert isinstance(params["poly__interaction_only"], bool), "interaction_only must be bool."
+                self._interaction_only = params["poly__interaction_only"]
+            else:
+                self._interaction_only=False
 
 
         # Inform the streamline to user.
@@ -269,7 +284,14 @@ class TransformationStream:
             if verbose:
                 print ("Itemset mining unimplemented\n")
             return X
+        
 
+        def runPoly(X, verbose=False):
+            if verbose:
+                print("Executing Polynomial Transformation with " + str(self._degree) + "degree\t"+"and "+str(self._interaction_only)+" interaction only.")
+                
+            return PolynomialTransformer(self._degree, self._interaction_only).transform(X)
+        
         # map the inputs to the function blocks
         options = {"scale" : runScale,
                    "normalize" : runNormalize,
@@ -279,7 +301,8 @@ class TransformationStream:
                    "pca" : runPCA,
                    "kmeans" : runKmeans,
                   "brbm": runBRBM,
-                  "tsne":runTSNE}
+                  "tsne":runTSNE,
+                  "poly":runPoly}
         
         # Execute commands as provided in the preproc_args list
         self._df_transformed = self._X
